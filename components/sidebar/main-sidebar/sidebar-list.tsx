@@ -17,8 +17,8 @@ export default function SidebarList({ servers }: SidebarListProps) {
   return (
     <div className="flex flex-col gap-4">
       {servers.map((server) => (
-        <TooltipComp content={server.name}>
-          <Link href={`/server/${server.id}`} key={server.id}>
+        <TooltipComp content={server.name} key={server.id}>
+          <Link href={`/server/${server.id}`}>
             <button className="h-11 w-11 group relative flex items-center">
               {/*  */}
               {server.id === params.serverId && (
