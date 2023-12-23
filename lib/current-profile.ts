@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma"; // Prisma client for database interactions
 import { currentUser, redirectToSignIn } from "@clerk/nextjs"; // Clerk authentication library for Next.js
 
-export default async function CurrentProfile() {
+export default async function currentProfile() {
   // Check if a user is authenticated using Clerk's currentUser function
   const user = await currentUser();
 
