@@ -1,9 +1,11 @@
 import { ModeToggle } from "@/components/mode-toggle";
+import { TooltipComp } from "@/components/tooltip";
 import { Separator } from "@/components/ui/separator";
-import initialProfile from "@/lib/initial-profile";
-import { prisma } from "@/lib/prisma";
 import { UserButton, redirectToSignUp } from "@clerk/nextjs";
 import { Plus } from "lucide-react";
+
+import { prisma } from "@/lib/prisma";
+import initialProfile from "@/lib/initial-profile";
 import SidebarList from "./sidebar-list";
 
 export default async function MainLayoutSidebar() {
@@ -24,11 +26,13 @@ export default async function MainLayoutSidebar() {
   return (
     <div className="border-r border-gray-200 flex flex-col items-center py-2 dark:bg-slate-700/20 dark:border-gray-800/40 gap-4">
       {/* Add a server */}
-      <div className="group">
-        <div className="bg-slate-200 rounded-full h-12 w-12 flex items-center justify-center group-hover:bg-green-500 cursor-pointer dark:bg-slate-800 group-hover:rounded-[6px] transition">
-          <Plus className="text-green-600 group-hover:text-white" />
+      <TooltipComp content="Add a server">
+        <div className="group">
+          <div className="bg-slate-200 rounded-full h-12 w-12 flex items-center justify-center group-hover:bg-green-500 cursor-pointer dark:bg-slate-800 group-hover:rounded-[6px] transition">
+            <Plus className="text-green-600 group-hover:text-white" />
+          </div>
         </div>
-      </div>
+      </TooltipComp>
 
       <Separator />
 
