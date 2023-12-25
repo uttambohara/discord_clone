@@ -75,7 +75,7 @@ model Channel {
 model Server {
   id         String    @id @default(uuid())
   name       String
-  inviteCode String
+  inviteCode String @unique
   imageUrl   String    @db.Text
   // relations
   members    Member[]

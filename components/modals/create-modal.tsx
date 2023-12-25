@@ -7,7 +7,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -18,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useModal } from "@/hooks/use-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,6 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import UploadItem from "../upload-item";
-import { useModal } from "@/hooks/use-modal";
 
 const formSchema = z.object({
   imageUrl: z
