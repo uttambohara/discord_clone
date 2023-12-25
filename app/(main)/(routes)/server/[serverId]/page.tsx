@@ -1,3 +1,3 @@
 export default function ServerMain() {
-  return <div>Server</div>;
+  return <div></div>;
 }

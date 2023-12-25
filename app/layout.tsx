@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import { PT_Serif } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/provider/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import ModalProvider from "@/components/provider/modal-provider";
 
-const inter = Open_Sans({ subsets: ["latin"] });
+const inter = PT_Serif({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
