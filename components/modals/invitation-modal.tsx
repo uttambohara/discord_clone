@@ -29,7 +29,7 @@ export default function InvitationModal() {
   async function onSubmit() {
     try {
       setIsUpdating(true);
-      const newData = await axios.patch(`/api/server/${data?.id}`);
+      const newData = await axios.patch(`/api/server/${data?.id}/invite-code`);
       router.refresh();
       onOpen("inviteFriends", newData.data.newData);
     } catch (err) {
@@ -55,7 +55,9 @@ export default function InvitationModal() {
     <Dialog open={isModalOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center mb-3">Invite Friends</DialogTitle>
+          <DialogTitle className="text-center mb-3 text-2xl">
+            Invite Friends
+          </DialogTitle>
 
           {/* Upload Form */}
           <div className="flex items-center gap-3">

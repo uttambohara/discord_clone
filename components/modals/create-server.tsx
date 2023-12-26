@@ -75,7 +75,7 @@ export default function CreateServer() {
       <DialogTrigger>Open</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center">
+          <DialogTitle className="text-center text-2xl">
             Customize your server
           </DialogTitle>
           <DialogDescription className="text-center">

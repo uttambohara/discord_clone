@@ -1,6 +1,7 @@
 import currentProfile from "@/lib/current-profile";
-import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { v4 as uuidv4 } from "uuid";
 
 export async function PATCH(
   request: NextRequest,
@@ -12,21 +13,19 @@ export async function PATCH(
 
     if (!currUser) return new NextResponse("Unauthorized", { status: 401 });
 
-    const values = await request.json();
-
     const updatedServer = await prisma.server.update({
       where: {
         id: params.serverId,
         profileId: currUser.id,
       },
       data: {
-        ...values,
+        inviteCode: uuidv4(),
       },
     });
 
     return NextResponse.json({ status: "success", newData: updatedServer });
   } catch (err) {
-    console.log("[customize_server]", err);
+    console.log("[Server_update_invitationCode]", err);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

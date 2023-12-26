@@ -15,7 +15,7 @@ const UploadItem = forwardRef(
     const handleClear = () => onChange("");
     if (value) {
       return (
-        <div className="relative h-16 w-16 mx-auto">
+        <div className="relative h-14 w-14 mx-auto mt-2">
           <Image
             src={value}
             alt={"Server image..."}
@@ -25,10 +25,10 @@ const UploadItem = forwardRef(
             className="rounded-full -z-10"
           />
           <button
-            className="absolute bg-red-700 rounded-full top-0 right-0"
+            className="absolute bg-red-700 rounded-full top-0 right-0 p-1"
             onClick={handleClear}
           >
-            <X color="white" />
+            <X color="white" size={17} />
           </button>
         </div>
       );

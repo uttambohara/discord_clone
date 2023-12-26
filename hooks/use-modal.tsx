@@ -1,7 +1,7 @@
 import { Server } from "@prisma/client";
 import { create } from "zustand";
 
-type ModalType = "createServer" | "inviteFriends";
+type ModalType = "createServer" | "inviteFriends" | "customizeServer";
 
 type ModalData = Server | undefined;
 
@@ -9,7 +9,7 @@ type ModalProps = {
   isOpen: boolean;
   data: ModalData;
   currentModal: ModalType | null;
-  onOpen: (value: ModalType, data: ModalData) => void;
+  onOpen: (value: ModalType, data?: ModalData) => void;
   onClose: () => void;
 };
 
