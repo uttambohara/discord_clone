@@ -21,7 +21,7 @@ import { useModal } from "@/hooks/use-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import UploadItem from "../upload-item";
@@ -37,8 +37,8 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-export default function CreateServerModal() {
-  const { isOpen, currentModal, onOpen, onClose } = useModal();
+export default function CustomizeServerModal() {
+  const { isOpen, currentModal, onOpen, onClose, data } = useModal();
 
   const [mounted, setHasMounted] = React.useState(false);
   //
@@ -51,6 +51,16 @@ export default function CreateServerModal() {
     },
   });
 
+  useEffect(
+    function () {
+      if (data) {
+        form.setValue("imageUrl", data.imageUrl);
+        form.setValue("name", data.name);
+      }
+    },
+    [data, form]
+  );
+
   React.useEffect(() => {
     setHasMounted(true);
   }, []);
@@ -60,9 +70,9 @@ export default function CreateServerModal() {
   // Handler
   async function onSubmit(values: FormSchemaType) {
     try {
-      const server = await axios.post(`/api/server/create`, values);
-
+      const server = await axios.patch(`/api/server/${data?.id}`, values);
       form.reset();
+      handleClose();
       router.refresh();
       window.location.assign(`/server/${server.data.server.id}`);
     } catch (err) {
@@ -71,7 +81,7 @@ export default function CreateServerModal() {
   }
 
   const { isSubmitting } = form.formState;
-  const isModalOpen = isOpen && currentModal === "createServer";
+  const isModalOpen = isOpen && currentModal === "customizeServer";
 
   function handleClose() {
     form.reset();

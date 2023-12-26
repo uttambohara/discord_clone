@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { useModal } from "@/hooks/use-modal";
-import { ChevronDown, PlusCircle } from "lucide-react";
+import { ChevronDown, Settings, User } from "lucide-react";
 
 type ServerSidebarProps = {
   server: Server;
@@ -18,8 +18,9 @@ type ServerSidebarProps = {
 
 export default function ServerSidebar({ server }: ServerSidebarProps) {
   const { onOpen } = useModal();
+
   return (
-    <div className="border-r border-gray-300">
+    <div className="border-r border-gray-300  dark:border-gray-500/20">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center justify-between w-full px-3 py-3">
@@ -31,16 +32,23 @@ export default function ServerSidebar({ server }: ServerSidebarProps) {
         <DropdownMenuContent className="w-[12rem]">
           <DropdownMenuItem>
             <button
-              className="flex items-center justify-between w-full px-3"
+              className="flex items-center justify-between w-full px-1 text-indigo-700"
               onClick={() => onOpen("inviteFriends", server)}
             >
               <span>Invite friends</span>
-              <PlusCircle size={16} />
+              <User size={16} />
             </button>
           </DropdownMenuItem>
-          {/* <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem>Team</DropdownMenuItem>
-          <DropdownMenuItem>Subscription</DropdownMenuItem> */}
+
+          <DropdownMenuItem>
+            <button
+              className="flex items-center justify-between w-full px-1"
+              onClick={() => onOpen("customizeServer", server)}
+            >
+              <span>Customize server</span>
+              <Settings size={16} />
+            </button>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

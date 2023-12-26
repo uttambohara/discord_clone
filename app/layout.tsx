@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { PT_Serif } from "next/font/google";
+import { Jost } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/provider/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import ModalProvider from "@/components/provider/modal-provider";
 
-const inter = PT_Serif({
+const inter = Jost({
   subsets: ["latin"],
   weight: "400",
 });
