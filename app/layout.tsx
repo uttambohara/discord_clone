@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Lato } from "next/font/google";
+import { Indie_Flower } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import ModalProvider from "@/components/providers/modal-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
-const inter = Lato({
+const inter = Indie_Flower({
   subsets: ["latin"],
   weight: "400",
 });
