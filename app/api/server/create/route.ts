@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     const server = await prisma.server.create({
       data: {
         name: values.name,
+        profileId: currUser.userId,
         imageUrl: values.imageUrl,
         inviteCode: uuidv4(),
         members: {

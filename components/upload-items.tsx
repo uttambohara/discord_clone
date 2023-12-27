@@ -45,4 +45,6 @@ const UploadItem = forwardRef(
   }
 );
 
+UploadItem.displayName = "UploadItem";
+
 export default UploadItem;

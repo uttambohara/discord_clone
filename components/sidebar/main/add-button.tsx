@@ -2,9 +2,9 @@
 
 import { useModalStore } from "@/hooks/use-modal";
 import { Plus } from "lucide-react";
-import React from "react";
+import React, { forwardRef } from "react";
 
-export default function AddButton() {
+const AddButton = forwardRef(() => {
   const { onOpen } = useModalStore();
   return (
     <div className="group">
@@ -16,4 +16,7 @@ export default function AddButton() {
       </div>
     </div>
   );
-}
+});
+
+AddButton.displayName = "AddButton";
+export default AddButton;
