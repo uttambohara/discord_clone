@@ -3,10 +3,10 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 
 const f = createUploadthing();
 
-const authCheck = () => {
-  const { userId } = auth();
+const authCheck = async () => {
+  const { userId } = await auth();
 
-  if (!userId) throw new Error("Unauthorized////");
+  if (!userId) throw new Error("Unauthorized.");
 
   return { userId };
 };

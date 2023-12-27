@@ -1,37 +1,29 @@
-// Import necessary dependencies and modules
-import { prisma } from "@/lib/prisma"; // Prisma client for database interactions
-import { currentUser, redirectToSignIn } from "@clerk/nextjs"; // Clerk authentication library for Next.js
+import { prisma } from "@/lib/prisma";
+import { currentUser, redirectToSignUp } from "@clerk/nextjs";
 
-export default async function currentProfile() {
-  // Check if a user is authenticated using Clerk's currentUser function
-  const user = await currentUser();
+export default async function initialProfile() {
+  const currUser = await currentUser();
 
-  // If user is not authenticated, return null
-  if (!user) return null;
+  if (!currUser) return redirectToSignUp();
 
-  // Attempt to retrieve a user profile from the database
   const profile = await prisma.profile.findFirst({
     where: {
-      userId: user.id,
+      userId: currUser.id,
     },
   });
 
-  // If no profile is found
   if (!profile) {
-    // Create a new profile
-    const createProfile = await prisma.profile.create({
+    const profile = await prisma.profile.create({
       data: {
-        email: user.emailAddresses[0].emailAddress,
-        imageUrl: user.imageUrl,
-        name: user.firstName!,
-        userId: user.id,
+        email: currUser.emailAddresses[0].emailAddress,
+        name: currUser.firstName!,
+        imageUrl: currUser.imageUrl,
+        userId: currUser.id,
       },
     });
 
-    // Return the newly created profile
-    return createProfile;
+    return profile;
   }
 
-  // If a profile exists, return the retrieved profile
   return profile;
 }

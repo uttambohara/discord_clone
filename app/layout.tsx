@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Jost } from "next/font/google";
+import { Lato } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/provider/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
-import ModalProvider from "@/components/provider/modal-provider";
+import ModalProvider from "@/components/providers/modal-provider";
 
-const inter = Jost({
+const inter = Lato({
   subsets: ["latin"],
   weight: "400",
 });
@@ -22,17 +21,10 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en">
         <body className={inter.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <ModalProvider />
-            {children}
-          </ThemeProvider>
+          <ModalProvider />
+          {children}
         </body>
       </html>
     </ClerkProvider>
