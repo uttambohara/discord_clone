@@ -1,48 +1,44 @@
-import { UploadDropzone } from "@/lib/uploadthing";
+import { UploadDropzone } from "@/lib/utils/uploadthing";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { forwardRef } from "react";
 
-type UploadItemProps = {
+type UploadItemsProps = {
   endpoint: "imageUploader";
   value: string;
   onChange: (value: string) => void;
 };
 
 const UploadItem = forwardRef(
-  ({ endpoint, value, onChange }: UploadItemProps, ref) => {
-    //
-    const handleClear = () => onChange("");
+  ({ endpoint, value, onChange }: UploadItemsProps, ref) => {
     if (value) {
       return (
-        <div className="relative h-14 w-14 mx-auto mt-2">
+        <div className="relative h-12 w-12 mx-auto">
           <Image
             src={value}
-            alt={"Server image..."}
             fill
             priority
-            style={{ objectFit: "cover" }}
-            className="rounded-full -z-10"
+            alt={"Server image"}
+            className="rounded-full -z-1"
           />
           <button
-            className="absolute bg-red-700 rounded-full top-0 right-0 p-1"
-            onClick={handleClear}
+            className="h-5 w-5 absolute top-0 right-0 bg-red-700 rounded-full flex items-center justify-center shadow-md p-1"
+            onClick={() => onChange("")}
           >
-            <X color="white" size={17} />
+            <X color="white" />
           </button>
         </div>
       );
     }
-
     return (
       <UploadDropzone
-        endpoint="imageUploader"
+        endpoint={endpoint}
         onClientUploadComplete={(res) => {
           if (!res) return null;
+          console.log("Files: ", res);
           onChange(res?.[0].url);
         }}
         onUploadError={(error: Error) => {
-          // Do something with the error.
           alert(`ERROR! ${error.message}`);
         }}
       />

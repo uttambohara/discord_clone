@@ -1,40 +1,52 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
-  directUrl    = env("DIRECT_URL")
-  relationMode = "prisma"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-enum MemberRole {
+enum MemberType {
   GUEST
-  MODERATOR
   ADMIN
+  MODERATOR
 }
 
 enum ChannelType {
   TEXT
-  VIDEO
   AUDIO
+  VIDEO
 }
 
 model Profile {
-  id       String    @id @default(uuid())
+  id       String @id @default(uuid())
   userId   String
   name     String
   email    String
-  imageUrl String    @db.Text
-  // relations
-  members  Member[]
-  servers  Server[]
-  channels Channel[]
+  imageUrl String
+
+  // relation
+  members Member[]
+  servers Server[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Server {
+  id         String @id @default(uuid())
+  name       String
+  imageUrl   String
+  inviteCode String
+
+  // 
+  members   Member[]
+  channels  Channel[]
+  profile   Profile?  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -43,50 +55,25 @@ model Profile {
 model Member {
   id String @id @default(uuid())
 
-  memberRole MemberRole @default(GUEST)
-  // relations
-  profile    Profile?   @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId  String?
-  server     Server?    @relation(fields: [serverId], references: [id], onDelete: Cascade)
-  serverId   String?
+  role MemberType @default(GUEST)
+
+  server    Server?  @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  serverId  String?
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([serverId])
-  @@index([profileId])
 }
 
 model Channel {
-  id       String      @id @default(uuid())
-  name     String
-  imageUrl String?
-  type     ChannelType @default(TEXT)
+  id String @id @default(uuid())
 
-  //
-  profile   Profile? @relation(fields: [profileId], references: [id])
-  profileId String?
-  // relations
+  name String
+  type ChannelType @default(TEXT)
+
   server    Server?  @relation(fields: [serverId], references: [id], onDelete: Cascade)
   serverId  String?
-
-  @@index([serverId])
-  @@index([profileId])
-}
-
-model Server {
-  id         String    @id @default(uuid())
-  name       String
-  inviteCode String    @unique
-  imageUrl   String    @db.Text
-  // relations
-  members    Member[]
-  channels   Channel[]
-  profile    Profile?  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId  String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([profileId])
 }
