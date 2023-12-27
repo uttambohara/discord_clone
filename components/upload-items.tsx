@@ -35,7 +35,6 @@ const UploadItem = forwardRef(
         endpoint={endpoint}
         onClientUploadComplete={(res) => {
           if (!res) return null;
-          console.log("Files: ", res);
           onChange(res?.[0].url);
         }}
         onUploadError={(error: Error) => {

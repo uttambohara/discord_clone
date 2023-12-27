@@ -1,20 +1,17 @@
-import DisplayCreateServerModal from "@/components/modals/display-create-server-modal";
-import currentProfile from "@/lib/initial-profile";
+import DisplayModal from "@/components/modals/display-modal";
+import initialProfile from "@/lib/initial-profile";
 import { prisma } from "@/lib/prisma";
-import { redirectToSignUp } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 export default async function page() {
-  const currUser = await currentProfile();
-
-  if (!currUser) return redirectToSignUp();
+  const currUser = await initialProfile();
 
   // check if the profile is a member of any server
   const server = await prisma.server.findFirst({
     where: {
       members: {
         some: {
-          profileId: currUser.userId,
+          profileId: currUser?.userId,
         },
       },
     },
@@ -24,5 +21,5 @@ export default async function page() {
   if (server) return redirect(`/server/${server.id}`);
 
   //
-  return <DisplayCreateServerModal />;
+  return <DisplayModal />;
 }

@@ -3,7 +3,7 @@
 import { useModalStore } from "@/hooks/use-modal";
 import { useEffect } from "react";
 
-export default function DisplayCreateServerModal() {
+export default function DisplayModal() {
   const { onOpen } = useModalStore();
 
   useEffect(() => onOpen("createServer"), []);
