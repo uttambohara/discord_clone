@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,11 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -22,6 +18,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useModalStore } from "@/hooks/use-modal";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import UploadItem from "../upload-items";
 
 // Form schema and zod
@@ -39,7 +40,8 @@ type FormSchema = z.infer<typeof formSchema>;
 // Modal
 export default function CreateServerModal() {
   // state and hooks
-  const { openModal, isOpen } = useModalStore();
+  const { openModal, isOpen, onClose } = useModalStore();
+  const router = useRouter();
 
   // form
   const form = useForm<FormSchema>({
@@ -50,9 +52,25 @@ export default function CreateServerModal() {
     },
   });
 
+  //
+  const { isSubmitting } = form.formState;
+
+  // handle close from Modal store
+  function handleClose() {
+    form.reset();
+    onClose();
+  }
+
   // form submit handler
-  function onSubmit(values: FormSchema) {
-    console.log(values);
+  async function onSubmit(values: FormSchema) {
+    try {
+      const server = await axios.post(`/api/server/create`, values);
+      router.refresh();
+      handleClose();
+      window.location.assign(`/server/${server.data.data.id}`);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   // condition
@@ -60,7 +78,7 @@ export default function CreateServerModal() {
   if (!hasOpened) return null;
 
   return (
-    <Dialog open>
+    <Dialog open={hasOpened} onOpenChange={() => handleClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-2xl text-center">
@@ -95,13 +113,19 @@ export default function CreateServerModal() {
                 <FormItem>
                   <FormLabel>Server name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Server name..." {...field} />
+                    <Input
+                      placeholder="Server name..."
+                      {...field}
+                      disabled={isSubmitting}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit">Create</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              Create
+            </Button>
           </form>
         </Form>
       </DialogContent>

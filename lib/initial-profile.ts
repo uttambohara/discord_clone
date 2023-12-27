@@ -1,18 +1,29 @@
 import { prisma } from "@/lib/prisma";
-import { auth, redirectToSignUp } from "@clerk/nextjs";
+import { currentUser, redirectToSignUp } from "@clerk/nextjs";
 
-export default async function currentProfile() {
-  const { userId } = auth();
+export default async function initialProfile() {
+  const currUser = await currentUser();
 
-  if (!userId) return redirectToSignUp();
+  if (!currUser) return redirectToSignUp();
 
   const profile = await prisma.profile.findFirst({
     where: {
-      userId,
+      userId: currUser.id,
     },
   });
 
-  if (!profile) return null;
+  if (!profile) {
+    const profile = await prisma.profile.create({
+      data: {
+        email: currUser.emailAddresses[0].emailAddress,
+        name: currUser.firstName!,
+        imageUrl: currUser.imageUrl,
+        userId: currUser.id,
+      },
+    });
+
+    return profile;
+  }
 
   return profile;
 }
