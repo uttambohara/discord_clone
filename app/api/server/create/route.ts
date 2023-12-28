@@ -6,29 +6,28 @@ import { MemberType } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
-    // authorization
     const currUser = await currentProfile();
 
     if (!currUser) return new NextResponse("Unauthorized", { status: 401 });
 
-    const values = await request.json();
+    const { imageUrl, name } = await request.json();
 
-    // create server
+    // server creation
     const server = await prisma.server.create({
       data: {
-        name: values.name,
-        profileId: currUser.userId,
-        imageUrl: values.imageUrl,
         inviteCode: uuidv4(),
+        imageUrl,
+        name,
         members: {
           create: {
-            profileId: currUser.userId,
+            profileId: currUser.id,
             role: MemberType.ADMIN,
           },
         },
         channels: {
           create: {
             name: "general",
+            profileId: currUser.id,
           },
         },
       },
@@ -37,6 +36,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "success", server });
   } catch (err) {
     console.log("create_server", err);
-    return new NextResponse("Internal error", { status: 500 });
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }

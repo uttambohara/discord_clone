@@ -1,21 +1,21 @@
 import { Server } from "@prisma/client";
 import { create } from "zustand";
 
-type ModalType = "createServer" | "inviteFriends" | "";
-type ModalData = Server;
+type ModalType = "createServer" | "";
+type ModalData = Server | null;
 
-type UseModalProps = {
-  isOpen: boolean;
+interface UseModalStore {
   openModal: ModalType;
-  data: ModalData | null;
+  isOpen: boolean;
+  data: ModalData;
   onOpen: (modal: ModalType, data?: ModalData) => void;
   onClose: () => void;
-};
+}
 
-export const useModalStore = create<UseModalProps>((set) => ({
-  isOpen: false,
+export const useModal = create<UseModalStore>((set) => ({
   openModal: "",
+  isOpen: false,
   data: null,
-  onOpen: (modal, data) => set({ isOpen: true, openModal: modal, data }),
-  onClose: () => set({ isOpen: false, openModal: "", data: null }),
+  onOpen: (modal, data) => set({ openModal: modal, isOpen: true, data }),
+  onClose: () => set({ openModal: "", isOpen: false, data: null }),
 }));

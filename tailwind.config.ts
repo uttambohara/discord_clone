@@ -18,4 +18,5 @@ const config: Config = withUt({
   },
   plugins: [],
 });
+
 export default config;

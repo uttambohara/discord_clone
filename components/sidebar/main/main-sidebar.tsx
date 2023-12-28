@@ -1,48 +1,43 @@
+import CreateServer from "@/components/create-server";
 import { ModeToggle } from "@/components/mode-toggle";
-import { TooltipEl } from "@/components/tooltip";
-import { Separator } from "@/components/ui/separator";
+import TooltipEl from "@/components/tooltip";
 import currentProfile from "@/lib/current-profile";
 import { prisma } from "@/lib/prisma";
-import { UserButton, redirectToSignUp } from "@clerk/nextjs";
+import { UserButton, redirectToSignIn } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
-import AddButton from "./add-button";
 
 export default async function MainSidebar() {
   const currUser = await currentProfile();
 
-  if (!currUser) return redirectToSignUp();
+  if (!currUser) return redirectToSignIn();
 
-  // display all the servers, the current user is subscribed
   const servers = await prisma.server.findMany({
     where: {
       members: {
         some: {
-          profileId: currUser.userId,
+          profileId: currUser.id,
         },
       },
     },
   });
-
   return (
-    <div className="border-r border-gray-200 flex flex-col py-3 items-center gap-4 dark:border-slate-100/20">
-      <TooltipEl content="Create a server">
-        <AddButton />
+    <div className="border-r border-slate-200 my-4 flex flex-col items-center gap-4 dark:border-slate-200/10">
+      <TooltipEl content={"Add a server"}>
+        <CreateServer />
       </TooltipEl>
 
-      <Separator />
-
-      <ul className="flex flex-col gap-3">
+      <ul className="flex item-center gap-2 flex-col">
         {servers.map((server) => (
-          <TooltipEl content={server.name} key={server.id}>
+          <TooltipEl key={server.id} content={server.name}>
             <Link href={`/server/${server.id}`}>
-              <li className="relative h-11 w-11 group cursor-pointer">
+              <li className="relative h-12 w-12 group">
                 <Image
                   src={server.imageUrl}
+                  alt={server.name}
                   fill
                   priority
-                  alt={server.name}
-                  className="rounded-full group-hover:rounded-[12px] transition"
+                  className="rounded-full group-hover:rounded-[20px] cursor-pointer"
                 />
               </li>
             </Link>
@@ -50,15 +45,11 @@ export default async function MainSidebar() {
         ))}
       </ul>
 
-      <div className="flex flex-col items-center gap-3 mt-auto">
+      <div className="mt-auto flex flex-col items-center gap-3">
         <ModeToggle />
         <UserButton
+          appearance={{ elements: { avatarBox: "h-12 w-12" } }}
           afterSignOutUrl="/"
-          appearance={{
-            elements: {
-              avatarBox: "h-11 w-11",
-            },
-          }}
         />
       </div>
     </div>

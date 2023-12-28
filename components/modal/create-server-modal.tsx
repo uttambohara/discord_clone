@@ -2,13 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormField,
@@ -17,33 +10,39 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useModalStore } from "@/hooks/use-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import UploadItem from "../upload-items";
 
-// Form schema and zod
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import UploadItem from "@/components/upload-item";
+import { useModal } from "@/hooks/use-modal";
+import { useRouter } from "next/navigation";
+
+// Form schema
 const formSchema = z.object({
   imageUrl: z.string().min(4, {
-    message: "Image URL must be at least 2 characters.",
+    message: "Image url must be at least 2 characters.",
   }),
-  name: z
-    .string()
-    .min(4, { message: "Server name should contain at least 3 characters." }),
+  name: z.string().min(4),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
 
 // Modal
 export default function CreateServerModal() {
-  // state and hooks
-  const { openModal, isOpen, onClose } = useModalStore();
+  const { isOpen, onOpen, openModal, onClose } = useModal();
+
   const router = useRouter();
 
-  // form
+  // Form
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,46 +51,44 @@ export default function CreateServerModal() {
     },
   });
 
-  //
   const { isSubmitting } = form.formState;
 
-  // handle close from Modal store
-  function handleClose() {
-    form.reset();
-    onClose();
-  }
+  // Check if the modal is open
+  const hasOpened = isOpen && openModal === "createServer";
 
-  // form submit handler
+  // Handlers
   async function onSubmit(values: FormSchema) {
     try {
-      const server = await axios.post(`/api/server/create`, values);
+      await axios.post(`/api/server/create`, values);
       router.refresh();
-      handleClose();
-      window.location.assign(`/server/${server.data.data.id}`);
+      window.location.reload();
     } catch (err) {
       console.log(err);
     }
   }
 
-  // condition
-  const hasOpened = isOpen && openModal === "createServer";
-  if (!hasOpened) return null;
+  //
+  function handleClose() {
+    form.reset();
+    onClose();
+  }
 
   return (
-    <Dialog open={hasOpened} onOpenChange={() => handleClose()}>
+    <Dialog open={hasOpened} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-2xl text-center">
+          <DialogTitle className="text-center text-2xl">
             Customize your server
           </DialogTitle>
           <DialogDescription className="text-center">
-            Give your server a personality with a name and image. You can always
-            change this later.
+            Give your server a name and an icon. You can always change this
+            later.
           </DialogDescription>
         </DialogHeader>
 
+        {/* Form */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Upload item */}
             <FormField
               control={form.control}
@@ -105,7 +102,6 @@ export default function CreateServerModal() {
                 </FormItem>
               )}
             />
-            {/* Server name */}
             <FormField
               control={form.control}
               name="name"
@@ -119,12 +115,13 @@ export default function CreateServerModal() {
                       disabled={isSubmitting}
                     />
                   </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" disabled={isSubmitting}>
-              Create
+              Submit
             </Button>
           </form>
         </Form>

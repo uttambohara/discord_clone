@@ -4,15 +4,14 @@ generator client {
 }
 
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
-  directUrl    = env("DIRECT_URL")
-  relationMode = "prisma"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum MemberType {
-  GUEST
   ADMIN
+  GUEST
   MODERATOR
 }
 
@@ -30,20 +29,22 @@ model Profile {
   imageUrl String
 
   // relation
-  members Member[]
-  servers Server[]
+  servers  Server[]
+  members  Member[]
+  channels Channel[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Server {
-  id         String @id @default(uuid())
+  id String @id @default(uuid())
+
   name       String
   imageUrl   String
   inviteCode String
 
-  // 
+  // relation
   members   Member[]
   channels  Channel[]
   profile   Profile?  @relation(fields: [profileId], references: [id], onDelete: Cascade)
@@ -51,6 +52,8 @@ model Server {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([profileId])
 }
 
 model Member {
@@ -58,13 +61,17 @@ model Member {
 
   role MemberType @default(GUEST)
 
-  server    Server?  @relation(fields: [serverId], references: [id], onDelete: Cascade)
-  serverId  String?
+  // relation
   profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String?
+  server    Server?  @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  serverId  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([serverId])
 }
 
 model Channel {
@@ -73,8 +80,15 @@ model Channel {
   name String
   type ChannelType @default(TEXT)
 
+  // relation
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String?
   server    Server?  @relation(fields: [serverId], references: [id], onDelete: Cascade)
   serverId  String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([serverId])
 }

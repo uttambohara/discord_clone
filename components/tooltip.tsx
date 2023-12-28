@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -9,16 +8,21 @@ import {
 type TooltipElProps = {
   children: React.ReactNode;
   content: string;
-  side?: "left" | "right" | "top" | "bottom" | undefined;
-  align?: "center" | "end" | "start" | undefined;
+  align?: "center" | "start" | "end" | undefined;
+  side?: "top" | "right" | "bottom" | "left" | undefined;
 };
 
-export function TooltipEl({ children, content, side, align }: TooltipElProps) {
+export default function TooltipEl({
+  children,
+  content,
+  align = "end",
+  side = "right",
+}: TooltipElProps) {
   return (
     <TooltipProvider delayDuration={50}>
       <Tooltip>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent side="right" align="end">
+        <TooltipTrigger>{children}</TooltipTrigger>
+        <TooltipContent align={align} side={side}>
           <p>{content}</p>
         </TooltipContent>
       </Tooltip>
