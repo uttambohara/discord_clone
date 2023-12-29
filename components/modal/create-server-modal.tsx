@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { useModal } from "@/hooks/useModal";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import UploadItem from "../upload-item";
+import UploadItem from "../upload-file";
 
 // Form schema
 const formSchema = z.object({
