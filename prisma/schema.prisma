@@ -10,7 +10,7 @@ datasource db {
 
 enum MemberType {
   ADMIN
-  MODEARTOR
+  MODERATOR
   GUEST
 }
 

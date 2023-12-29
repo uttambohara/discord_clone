@@ -1,6 +1,7 @@
 import MainSidebar from "@/components/navigation/main/navigation-sidebar";
 import currentProfile from "@/lib/current-profile";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
 export default async function MainLayout({
   children,
@@ -8,6 +9,8 @@ export default async function MainLayout({
   children: React.ReactNode;
 }) {
   const currUser = await currentProfile();
+
+  if (!currUser) return redirect("/");
 
   // If unknown users accesses it, they will be redirected by the middleware
   //

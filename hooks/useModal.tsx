@@ -6,6 +6,8 @@ type ModalType =
   | "invitePeople"
   | "manageMembers"
   | "createChannel"
+  | "deleteServer"
+  | "leaveServer"
   | "";
 
 type ModalData = Server | null;

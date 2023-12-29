@@ -39,7 +39,7 @@ export default function InviteFriendModal() {
     try {
       setIsUpdating(true);
       const server = await axios.patch(
-        `/api/server/${data?.inviteCode}/invite-code`,
+        `/api/invite/${data?.inviteCode}/invite-code`,
       );
       router.refresh();
       onOpen("invitePeople", server.data.server);
@@ -60,13 +60,13 @@ export default function InviteFriendModal() {
     <Dialog open={isCurrentlyOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl">
+          <DialogTitle className="mb-3 text-center text-2xl">
             Invite your friends
           </DialogTitle>
         </DialogHeader>
         {/* form */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-5">
+          <div className="flex items-center justify-between gap-3">
             <Input
               readOnly
               placeholder="Invitation code..."
@@ -74,7 +74,7 @@ export default function InviteFriendModal() {
               disabled={isUpdating || isCopying}
             />
             <button
-              className="rounded-md p-2 hover:bg-slate-50"
+              className="rounded-md p-2 hover:bg-slate-50 disabled:text-slate-300"
               disabled={isCopying}
             >
               <Copy size={16} onClick={handleCopyToClipboard} />
@@ -82,7 +82,7 @@ export default function InviteFriendModal() {
           </div>
 
           <button
-            className="flex items-center justify-between gap-2"
+            className="flex items-center justify-between gap-2 text-sm text-slate-600 hover:underline hover:underline-offset-4 disabled:text-slate-300 disabled:no-underline"
             onClick={handleNewInvitationCode}
             disabled={isUpdating}
           >

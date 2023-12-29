@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 export default async function Home() {
   const currUser = await initialProfile();
+
   // currUser is never null
   // because the initial profile will be created...
   const server = await prisma.server.findFirst({

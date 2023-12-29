@@ -3,10 +3,16 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -22,80 +28,75 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useModal } from "@/hooks/useModal";
+import { ChannelType } from "@prisma/client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import UploadItem from "../upload-file";
 
 // Form schema
 const formSchema = z.object({
-  name: z.string().min(4, {
-    message: "Username must be at least 4 characters.",
-  }),
-  imageUrl: z.string().min(8, {
-    message: "Image url must be at least 8 characters.",
-  }),
+  name: z
+    .string()
+    .min(4, {
+      message: "Username must be at least 4 characters.",
+    })
+    .refine((name) => name !== "general", {
+      message: "Name cannot be general.",
+    }),
+  type: z.nativeEnum(ChannelType),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
 
 // Modal
-export default function InviteModal() {
-  const [hasMounted, setHasMounted] = useState(false);
+export default function CreateChannelModal() {
+  const { isOpen, openModal, onClose, data, onOpen } = useModal();
   const router = useRouter();
 
   // form
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      imageUrl: "",
       name: "",
+      type: ChannelType.TEXT,
     },
   });
 
   const { isSubmitting } = form.formState;
+
   async function onSubmit(values: FormSchema) {
     try {
-      const server = await axios.post(`/api/server/create`, values);
+      const server = await axios.post(
+        `/api/server/${data?.id}/channel`,
+        values,
+      );
       router.refresh();
-      window.location.assign(`/server/${server.data.server.id}`);
+
+      window.location.reload();
     } catch (err) {
       console.log(err);
     }
   }
 
-  // hydration fix
-  useEffect(() => setHasMounted(true), []);
-  if (!hasMounted) return null;
+  // Open and close state
+  const isCurrentlyOpen = isOpen && openModal === "createChannel";
+
+  function handleClose() {
+    form.reset();
+    onClose();
+  }
 
   return (
-    <Dialog open>
+    <Dialog open={isCurrentlyOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
-            Customize your server
+            Create Channel
           </DialogTitle>
-          <DialogDescription className="text-center">
-            Give your server a personality by adding a name and an icon. You can
-            always change this later...
-          </DialogDescription>
         </DialogHeader>
         {/* form */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Upload item */}
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <UploadItem endpoint={"imageUploader"} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             {/* Name */}
             <FormField
               control={form.control}
@@ -109,6 +110,35 @@ export default function InviteModal() {
                       {...field}
                       disabled={isSubmitting}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>Channel type</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Theme" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(ChannelType).map((item) => (
+                          <SelectItem value={item} key={item}>
+                            {item}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

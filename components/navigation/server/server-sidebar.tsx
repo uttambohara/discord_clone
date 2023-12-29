@@ -6,10 +6,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 import { useModal } from "@/hooks/useModal";
 import { ServerWithMemberWithProfile } from "@/type";
 import { MemberType } from "@prisma/client";
-import { ChevronDown, TicketIcon } from "lucide-react";
+import {
+  ChevronDown,
+  PlusCircle,
+  TicketIcon,
+  Trash,
+  Users,
+} from "lucide-react";
 
 type ServerSidebarProps = {
   server: ServerWithMemberWithProfile;
@@ -22,7 +29,7 @@ export default function ServerSidebar({ server, role }: ServerSidebarProps) {
 
   //
   const isAdmin = role === MemberType.ADMIN;
-  const isModerator = isAdmin || role === MemberType.MODEARTOR;
+  const isModerator = isAdmin || role === MemberType.MODERATOR;
 
   return (
     <div className="border-r border-gray-200">
@@ -33,7 +40,7 @@ export default function ServerSidebar({ server, role }: ServerSidebarProps) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="w-[11rem]">
-          {isAdmin && (
+          {isModerator && (
             <DropdownMenuItem
               className="flex items-center justify-between px-2"
               onClick={() => onOpen("invitePeople", server)}
@@ -43,9 +50,47 @@ export default function ServerSidebar({ server, role }: ServerSidebarProps) {
             </DropdownMenuItem>
           )}
 
-          {/* <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem>Team</DropdownMenuItem>
-          <DropdownMenuItem>Subscription</DropdownMenuItem> */}
+          {isAdmin && (
+            <DropdownMenuItem
+              className="flex items-center justify-between px-2"
+              onClick={() => onOpen("manageMembers", server)}
+            >
+              <span>Manage members</span>
+              <Users size={18} />
+            </DropdownMenuItem>
+          )}
+
+          {isModerator && (
+            <DropdownMenuItem
+              className="flex items-center justify-between px-2"
+              onClick={() => onOpen("createChannel", server)}
+            >
+              <span>Create channel</span>
+              <PlusCircle size={18} />
+            </DropdownMenuItem>
+          )}
+
+          <Separator />
+
+          {isAdmin && (
+            <DropdownMenuItem
+              className="flex items-center justify-between px-2 text-red-600"
+              onClick={() => onOpen("deleteServer", server)}
+            >
+              <span>Delete server</span>
+              <Trash size={18} />
+            </DropdownMenuItem>
+          )}
+
+          {!isAdmin && (
+            <DropdownMenuItem
+              className="flex items-center justify-between px-2 text-red-600"
+              onClick={() => onOpen("leaveServer", server)}
+            >
+              <span>Leave server</span>
+              <Trash size={18} />
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
