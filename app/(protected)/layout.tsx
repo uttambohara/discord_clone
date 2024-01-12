@@ -13,11 +13,8 @@ export default async function ProtectedRoute({
 }: {
   children: React.ReactNode;
 }) {
-  console.log(await auth());
   const currentUser = await currentProfile();
   if (!currentUser) return redirect("/auth/login");
-
-  console.log(currentUser.id);
 
   const associatedServers = await prisma.server.findMany({
     where: {
@@ -28,8 +25,6 @@ export default async function ProtectedRoute({
       },
     },
   });
-
-  console.log(associatedServers);
 
   return (
     <div className="h-screen grid grid-cols-[65px_1fr]">

@@ -25,16 +25,25 @@ export default async function ServerLayout({
       },
     },
     include: {
-      members: true,
+      members: {
+        include: {
+          profile: true,
+        },
+      },
     },
   });
 
   if (!serverDetailsInServerSidebar) return null;
 
+  const role = serverDetailsInServerSidebar.members.find(
+    (member) => member.profileId === currentUser.id
+  )?.role;
+
   return (
-    <div className="grid grid-cols-[220px_1fr] ">
+    <div className="grid grid-cols-[250px_1fr] ">
       <div className="border-r border-slate-200 dark:border-white/10 h-screen dark:bg-[#36393e]">
         <ServerDropdown
+          role={role}
           serverDetailsInServerSidebar={serverDetailsInServerSidebar}
         />
       </div>

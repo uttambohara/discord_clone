@@ -2,11 +2,11 @@ import { auth } from "@/auth";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
-import { Kalam } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import ModalProvider from "@/providers/modal-provider";
 
-const inter = Kalam({
+const inter = Nunito_Sans({
   subsets: ["latin"],
   weight: "400",
 });

@@ -1,7 +1,12 @@
 import { ExtendedServerProps } from "@/types";
 import { create } from "zustand";
 
-type ModalType = "createServer" | "inviteFriends" | "serverSettings" | null;
+type ModalType =
+  | "createServer"
+  | "inviteFriends"
+  | "serverSettings"
+  | "manageMembers"
+  | null;
 type ModalData = ExtendedServerProps;
 
 interface UseModal {

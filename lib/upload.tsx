@@ -10,7 +10,6 @@ interface UploadProps {
 }
 
 const Upload = forwardRef(({ endpoint, value, onChange }: UploadProps, ref) => {
-  console.log({ value });
   if (value) {
     return (
       <div className="flex items-center justify-center">
