@@ -2,6 +2,7 @@
 
 import CreateServerDialog from "@/components/modal/create-server-dialog";
 import InviteFriendsModal from "@/components/modal/invite-friends-modal";
+import ManageMembersModal from "@/components/modal/manage-members-modal";
 import ServerSettingModal from "@/components/modal/server-setting-modal";
 import { useEffect, useState } from "react";
 
@@ -16,6 +17,7 @@ export default function ModalProvider() {
       <CreateServerDialog />
       <InviteFriendsModal />
       <ServerSettingModal />
+      <ManageMembersModal />
     </>
   );
 }

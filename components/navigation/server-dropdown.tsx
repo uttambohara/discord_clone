@@ -10,6 +10,7 @@ import {
 import { useModal } from "@/hooks/useModal";
 import { ExtendedServerProps } from "@/types";
 
+import { MemberRole } from "@prisma/client";
 import {
   ChevronDown,
   PlusCircle,
@@ -20,28 +21,29 @@ import {
 } from "lucide-react";
 
 interface ServerDropdownProps {
+  role?: MemberRole;
   serverDetailsInServerSidebar: ExtendedServerProps;
 }
 
 export default function ServerDropdown({
+  role,
   serverDetailsInServerSidebar,
 }: ServerDropdownProps) {
   const { isOpen, onOpen, openModal } = useModal();
-  //
-  const isAdmin = serverDetailsInServerSidebar.members[0].role === "ADMIN";
-  const isModerator =
-    serverDetailsInServerSidebar.members[0].role === "MODERATOR";
-  const isGuest = serverDetailsInServerSidebar.members[0].role === "GUEST";
+
+  const isAdmin = role === MemberRole.ADMIN;
+  const isModerator = role === MemberRole.MODERATOR || isAdmin;
+  const isGuest = role === MemberRole.GUEST;
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="border-b border-slate-200 p-3 w-full outline-none hover:bg-slate-100 dark:hover:bg-white/10 flex justify-between items-center dark:border-white/20">
-        <div>{serverDetailsInServerSidebar.name}</div>
+      <DropdownMenuTrigger className="border-b border-slate-200 py-2.5 px-4 w-full outline-none hover:bg-slate-100 shadow-sm dark:hover:bg-white/10 flex justify-between items-center dark:border-white/20">
+        <div className="text-[1rem]">{serverDetailsInServerSidebar.name}</div>
         <ChevronDown size={16} />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-[12rem]">
-        {(isAdmin || isModerator) && (
+        {isModerator && (
           <DropdownMenuItem
             className="flex items-center justify-between text-purple-600"
             onSelect={() =>
@@ -63,8 +65,13 @@ export default function ServerDropdown({
             <Settings size={18} />
           </DropdownMenuItem>
         )}
-        {(isAdmin || isModerator) && (
-          <DropdownMenuItem className="flex items-center justify-between">
+        {isAdmin && (
+          <DropdownMenuItem
+            className="flex items-center justify-between"
+            onClick={() =>
+              onOpen("manageMembers", serverDetailsInServerSidebar)
+            }
+          >
             Manage Members
             <Users size={18} />
           </DropdownMenuItem>
