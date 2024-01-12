@@ -26,3 +26,15 @@ export const registerSchema = z.object({
 });
 
 export type RegisterSchema = z.infer<typeof registerSchema>;
+
+//
+export const createServerModalSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+  imageUrl: z.string().min(2, {
+    message: "Image url must be at least 2 characters.",
+  }),
+});
+
+export type CreateServerModalSchema = z.infer<typeof createServerModalSchema>;
