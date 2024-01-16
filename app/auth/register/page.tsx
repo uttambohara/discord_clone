@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RegisterSchema, registerSchema } from "@/schema";
+import { RegisterSchema, registerSchema } from "@/schemas";
 import { useState, useTransition } from "react";
 import { register } from "@/actions/register";
 import CardMessage from "@/components/auth/card-message";

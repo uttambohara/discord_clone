@@ -2,7 +2,7 @@
 
 import { signIn } from "@/auth";
 import { getUserByEmail } from "@/data/users";
-import { LoginSchema, loginSchema } from "@/schema";
+import { LoginSchema, loginSchema } from "@/schemas";
 import { AuthError } from "next-auth";
 import { LOGIN_SUCCESS_REDIRECT } from "@/routes";
 import { generateVerificationCode } from "@/lib/token";

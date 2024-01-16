@@ -14,29 +14,26 @@ export async function PATCH(request: NextRequest) {
     if (!serverId)
       return new NextResponse("ServerId doesn't exist!", { status: 400 });
 
-    const memberId = url.get("memberId");
-    if (!memberId)
-      return new NextResponse("Member Id doesn't exist!", { status: 400 });
+    const { name, type } = await request.json();
 
-    const role = url.get("role") as MemberRole;
-    if (!role)
-      return new NextResponse("User role doesn't exist!", { status: 400 });
-
-    console.log(serverId, memberId, role);
-
-    const memberUpdatedServer = await prisma.server.update({
+    //
+    const channelCreatedServer = await prisma.server.update({
       where: {
         id: serverId,
+        profileId: user.id,
+        members: {
+          some: {
+            role: {
+              in: [MemberRole.ADMIN, MemberRole.MODERATOR],
+            },
+          },
+        },
       },
       data: {
-        members: {
-          updateMany: {
-            where: {
-              id: memberId,
-            },
-            data: {
-              role,
-            },
+        channels: {
+          create: {
+            name,
+            type,
           },
         },
       },
@@ -52,10 +49,10 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({
       status: "success",
-      server: memberUpdatedServer,
+      server: channelCreatedServer,
     });
   } catch (err) {
-    console.log("update_member's_role", err);
+    console.log("create_channels", err);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

@@ -1,7 +1,8 @@
-import ServerDropdown from "@/components/navigation/server-dropdown";
-import currentProfile from "@/data/users/current-profile";
+import ServerSidebar from "@/components/server/server-sidebar";
 import { prisma } from "@/lib/prisma";
+import currentProfile from "@/lib/users/current-profile";
 import { redirect } from "next/navigation";
+import React from "react";
 
 export default async function ServerLayout({
   children,
@@ -10,14 +11,14 @@ export default async function ServerLayout({
   children: React.ReactNode;
   params: { serverId: string };
 }) {
-  //
-  const currentUser = await currentProfile();
-  if (!currentUser) return redirect("/auth/login");
+  const { serverId } = params;
 
-  // of current user
-  const serverDetailsInServerSidebar = await prisma.server.findFirst({
+  const currentUser = await currentProfile();
+  if (!currentUser) return redirect("/");
+
+  const serverUserIsTheMemberOf = await prisma.server.findFirst({
     where: {
-      id: params.serverId,
+      id: serverId,
       members: {
         some: {
           profileId: currentUser.id,
@@ -30,24 +31,23 @@ export default async function ServerLayout({
           profile: true,
         },
       },
+      channels: true,
     },
   });
 
-  if (!serverDetailsInServerSidebar) return null;
+  if (!serverUserIsTheMemberOf) return redirect("/");
 
-  const role = serverDetailsInServerSidebar.members.find(
+  const role = serverUserIsTheMemberOf.members.find(
     (member) => member.profileId === currentUser.id
   )?.role;
 
   return (
-    <div className="grid grid-cols-[250px_1fr] ">
-      <div className="border-r border-slate-200 dark:border-white/10 h-screen dark:bg-[#36393e]">
-        <ServerDropdown
-          role={role}
-          serverDetailsInServerSidebar={serverDetailsInServerSidebar}
-        />
-      </div>
-      <main>{children}</main>
+    <div className="grid grid-cols-[230px_1fr] h-full">
+      <ServerSidebar
+        serverUserIsTheMemberOf={serverUserIsTheMemberOf}
+        role={role}
+      />
+      <main className="dark:bg-[#36393e]">{children}</main>
     </div>
   );
 }

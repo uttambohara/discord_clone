@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -9,21 +8,21 @@ import {
 interface ToolTipProps {
   children: React.ReactNode;
   label: string;
-  side?: "top" | "right" | "bottom" | "left" | undefined;
   align?: "center" | "start" | "end" | undefined;
+  side?: "top" | "right" | "bottom" | "left" | undefined;
 }
 
 export default function ToolTip({
   children,
   label,
-  side,
-  align,
+  align = "start",
+  side = "right",
 }: ToolTipProps) {
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent side={side} align={align}>
+        <TooltipTrigger>{children}</TooltipTrigger>
+        <TooltipContent align={align} side={side}>
           <p>{label}</p>
         </TooltipContent>
       </Tooltip>

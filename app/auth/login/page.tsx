@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
-import { LoginSchema, loginSchema } from "@/schema";
+import { LoginSchema, loginSchema } from "@/schemas";
 import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 

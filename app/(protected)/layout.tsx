@@ -1,22 +1,20 @@
-import { auth } from "@/auth";
-
+import NavFooter from "@/components/navigation/nav-footer";
+import NavHead from "@/components/navigation/nav-head";
+import NavItems from "@/components/navigation/nav-items";
 import { Separator } from "@/components/ui/separator";
-import currentProfile from "@/data/users/current-profile";
 import { prisma } from "@/lib/prisma";
+import currentProfile from "@/lib/users/current-profile";
 import { redirect } from "next/navigation";
-import NavigationAction from "@/components/navigation/navigation-action";
-import NavigationItem from "@/components/navigation/navigation-item";
-import NavigationProfile from "@/components/navigation/navigation-profile";
 
-export default async function ProtectedRoute({
+export default async function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const currentUser = await currentProfile();
-  if (!currentUser) return redirect("/auth/login");
+  if (!currentUser) return redirect("/");
 
-  const associatedServers = await prisma.server.findMany({
+  const serverUserIsTheMemberOf = await prisma.server.findMany({
     where: {
       members: {
         some: {
@@ -25,19 +23,20 @@ export default async function ProtectedRoute({
       },
     },
   });
-
   return (
-    <div className="h-screen grid grid-cols-[65px_1fr]">
-      <div className="border-r border-slate-200 py-4 flex items-center justify-between flex-col dark:bg-[#282b30] dark:border-white/10">
-        <div className="space-y-4">
-          <NavigationAction />
+    <div className="grid grid-cols-[70px_1fr] h-screen">
+      <div className="border-r border-slate-100 py-3 flex items-center flex-col justify-between dark:bg-[#1e2124] dark:border-white/10">
+        {/* Head */}
+        <div className="flex flex-col gap-4">
+          <NavHead />
           <Separator />
-          <NavigationItem associatedServers={associatedServers} />
+          {/* Servers */}
+          <NavItems serverUserIsTheMemberOf={serverUserIsTheMemberOf} />
         </div>
-
-        <NavigationProfile />
+        {/* Foot */}
+        <NavFooter />
       </div>
-      <main className="dark:bg-[#424549]">{children}</main>
+      <main>{children}</main>
     </div>
   );
 }

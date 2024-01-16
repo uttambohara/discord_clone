@@ -1,13 +1,14 @@
-import CreateServerModal from "@/components/modal/create-server-modal";
-import initialProfile from "@/data/users/initial-profile";
+import CreateServer from "@/components/modal/create-server";
 import { prisma } from "@/lib/prisma";
+import initialProfile from "@/lib/users/initial-profile";
 import { redirect } from "next/navigation";
 
-export default async function Setup() {
+export default async function Home() {
+  //
   const initialUser = await initialProfile();
-  if (!initialUser) return redirect("/auth/login");
 
-  const userMemberOfTheServer = await prisma.server.findFirst({
+  //
+  const serverInitialUserIsThePartOf = await prisma.server.findFirst({
     where: {
       members: {
         some: {
@@ -17,8 +18,8 @@ export default async function Setup() {
     },
   });
 
-  if (userMemberOfTheServer)
-    return redirect(`/server/${userMemberOfTheServer.id}`);
+  if (serverInitialUserIsThePartOf)
+    return redirect(`/server/${serverInitialUserIsThePartOf.id}`);
 
-  return <CreateServerModal />;
+  return <CreateServer />;
 }

@@ -1,5 +1,5 @@
-import { Member, Server, Profile } from "@prisma/client";
+import { Server, Member, Profile, Channel } from "@prisma/client";
 
-export type ExtendedServerProps = Server & {
+export type ServerWithMembersProfile = Server & {
   members: (Member & { profile: Profile | null })[];
-};
+} & { channels: Channel[] };

@@ -1,13 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-interface AvatarElProps {
-  imageSrc: string;
+interface AvatarEl {
+  src?: string;
 }
 
-export default function AvatarEl({ imageSrc }: AvatarElProps) {
+export default function AvatarEl({ src }: AvatarEl) {
   return (
-    <Avatar className="w-12 h-12">
-      <AvatarImage src={imageSrc} />
+    <Avatar className="h-12 w-12">
+      <AvatarImage src={src} />
       <AvatarFallback>CN</AvatarFallback>
     </Avatar>
   );
