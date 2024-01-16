@@ -6,7 +6,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { getUserByEmail } from "./data/users";
 import { sendVerificationEmail } from "./lib/email";
 import { generateVerificationCode } from "./lib/token";
-import { loginSchema } from "./schema";
+import { loginSchema } from "./schemas";
 
 export default {
   providers: [

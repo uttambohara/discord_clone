@@ -43,52 +43,33 @@ model VerificationCode {
   expires DateTime
 }
 
-//
+// 
 
 model Profile {
-  id        String    @id @default(uuid())
-  userId    String    @unique
-  name      String?
-  email     String?
-  imageUrl  String?
-  servers   Server[]
-  members   Member[]
-  channels  Channel[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
+  id       String  @id @default(cuid())
+  userId   String
+  name     String?
+  email    String?
+  imageUrl String?
 
-model Server {
-  id         String  @id @default(uuid())
-  name       String
-  imageUrl   String
-  inviteCode String?
-
-  members  Member[]
+  servers  Server[]
   channels Channel[]
+  members  Member[]
 
-  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-enum MemberRole {
-  ADMIN
-  GUEST
-  MODERATOR
-}
+model Server {
+  id         String @id @default(cuid())
+  name       String
+  imageUrl   String
+  inviteCode String @unique
 
-model Member {
-  id   String     @id @default(uuid())
-  role MemberRole @default(GUEST)
-
-  profile   Profile? @relation(fields: [profileId], references: [id])
+  channels  Channel[]
+  members   Member[]
+  profile   Profile?  @relation(fields: [profileId], references: [id])
   profileId String?
-  channel   Channel? @relation(fields: [channelId], references: [id])
-  channelId String?
-  server    Server?  @relation(fields: [serverId], references: [id])
-  serverId  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -101,15 +82,51 @@ enum ChannelType {
 }
 
 model Channel {
-  id      String      @id @default(uuid())
-  name    String
-  type    ChannelType @default(AUDIO)
-  members Member[]
+  id   String      @id @default(cuid())
+  name String
+  type ChannelType @default(TEXT)
 
+  posts     Post[]
+  members   Member[]
   profile   Profile? @relation(fields: [profileId], references: [id])
   profileId String?
   server    Server?  @relation(fields: [serverId], references: [id])
   serverId  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MemberRole {
+  GUEST
+  ADMIN
+  MODERATOR
+}
+
+model Member {
+  id   String     @id @default(cuid())
+  role MemberRole @default(GUEST)
+
+  posts     Post[]
+  profile   Profile? @relation(fields: [profileId], references: [id])
+  profileId String?
+  channel   Channel? @relation(fields: [channelId], references: [id])
+  channelId String?
+  server    Server?  @relation(fields: [serverId], references: [id])
+  serverId  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id  String @id @default(cuid())
+  url String
+
+  channel   Channel? @relation(fields: [channelId], references: [id])
+  channelId String?
+  member    Member?  @relation(fields: [memberId], references: [id])
+  memberId  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -18,25 +18,14 @@ export async function PATCH(request: NextRequest) {
     if (!memberId)
       return new NextResponse("Member Id doesn't exist!", { status: 400 });
 
-    const role = url.get("role") as MemberRole;
-    if (!role)
-      return new NextResponse("User role doesn't exist!", { status: 400 });
-
-    console.log(serverId, memberId, role);
-
     const memberUpdatedServer = await prisma.server.update({
       where: {
         id: serverId,
       },
       data: {
         members: {
-          updateMany: {
-            where: {
-              id: memberId,
-            },
-            data: {
-              role,
-            },
+          delete: {
+            id: memberId,
           },
         },
       },

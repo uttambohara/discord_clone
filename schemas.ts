@@ -1,5 +1,5 @@
 import * as z from "zod";
-
+import { ChannelType } from "@prisma/client";
 //
 export const loginSchema = z.object({
   email: z.string().email().min(5, {
@@ -28,13 +28,28 @@ export const registerSchema = z.object({
 export type RegisterSchema = z.infer<typeof registerSchema>;
 
 //
-export const createServerModalSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+export const createServerModal = z.object({
+  imageUrl: z.string().min(4, {
+    message: "Image url must be at least 4 characters.",
   }),
-  imageUrl: z.string().min(2, {
-    message: "Image url must be at least 2 characters.",
+  name: z.string().min(5, {
+    message: "Server name must be at least 5 characters.",
   }),
 });
 
-export type CreateServerModalSchema = z.infer<typeof createServerModalSchema>;
+export type CreateServerModal = z.infer<typeof createServerModal>;
+
+//
+export const createChannelModalT = z
+  .object({
+    name: z.string().min(5, {
+      message: "Server name must be at least 5 characters.",
+    }),
+    type: z.nativeEnum(ChannelType),
+  })
+  .refine((data) => data.name !== "general", {
+    message: "General is the default channel name.",
+    path: ["name"],
+  });
+
+export type CreateChannelModalT = z.infer<typeof createChannelModalT>;

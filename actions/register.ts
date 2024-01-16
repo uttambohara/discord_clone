@@ -4,7 +4,7 @@ import { getUserByEmail } from "@/data/users";
 import { sendVerificationEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 import { generateVerificationCode } from "@/lib/token";
-import { RegisterSchema, registerSchema } from "@/schema";
+import { RegisterSchema, registerSchema } from "@/schemas";
 import bcrypt from "bcryptjs";
 
 export async function register(values: RegisterSchema) {

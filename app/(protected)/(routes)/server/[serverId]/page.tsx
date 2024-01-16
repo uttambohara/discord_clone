@@ -1,5 +1,5 @@
-import currentProfile from "@/data/users/current-profile";
 import { prisma } from "@/lib/prisma";
+import currentProfile from "@/lib/users/current-profile";
 import { redirect } from "next/navigation";
 
 export default async function Server({
@@ -7,12 +7,14 @@ export default async function Server({
 }: {
   params: { serverId: string };
 }) {
-  const serverId = params.serverId;
+  const { serverId } = params;
 
+  // Authorization
   const currentUser = await currentProfile();
   if (!currentUser) return redirect("/auth/login");
 
-  const userMemberOfTheServer = await prisma.server.findMany({
+  //
+  const userMemberOfTheServer = await prisma.server.findFirst({
     where: {
       id: serverId,
       members: {
@@ -23,9 +25,7 @@ export default async function Server({
     },
   });
 
-  if (userMemberOfTheServer.length === 0) {
-    return redirect("/");
-  }
+  if (!userMemberOfTheServer) return redirect("/");
 
-  return <div>{serverId}</div>;
+  return <div>Server</div>;
 }

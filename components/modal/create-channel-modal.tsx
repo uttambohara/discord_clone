@@ -1,4 +1,12 @@
 "use client";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -16,37 +24,46 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CreateServerModal, createServerModal } from "@/schemas";
-import axios from "axios";
+import { useModal } from "@/hooks/use-modal";
+import { CreateChannelModalT, createChannelModalT } from "@/schemas";
+import { ChannelType } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Upload from "../upload";
-import { useModal } from "@/hooks/use-modal";
+import axios from "axios";
+import queryString from "query-string";
 
-export default function CreateServerModal() {
+export default function CreateChannelModal() {
   const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();
-  const { onClose, openModal, isOpen } = useModal();
+  const { onClose, openModal, isOpen, server } = useModal();
 
   //   Form
-  const form = useForm<CreateServerModal>({
-    resolver: zodResolver(createServerModal),
+  const form = useForm<CreateChannelModalT>({
+    resolver: zodResolver(createChannelModalT),
     defaultValues: {
-      imageUrl: "",
       name: "",
+      type: ChannelType.TEXT,
     },
   });
 
-  async function onSubmit(values: CreateServerModal) {
+  async function onSubmit(values: CreateChannelModalT) {
+    console.log(values);
     try {
       setIsUpdating(true);
-      const createdServer = await axios.post("/api/server", values);
+
+      const query = queryString.stringifyUrl({
+        url: "/api/channels",
+        query: {
+          serverId: server?.id,
+        },
+      });
+
+      await axios.patch(query, values);
       router.refresh();
-      window.location.assign(`/server/${createdServer.data.server.id}`);
+      window.location.reload();
     } catch (err) {
       console.log(err);
     } finally {
@@ -58,31 +75,32 @@ export default function CreateServerModal() {
     form.reset();
     onClose();
   }
-  const hasOpened = isOpen && openModal === "createServer";
+  const hasOpened = isOpen && openModal === "createChannel";
 
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
       <DialogContent className="dark:bg-[#36393e]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
-            Customize your server
+            Create channel
           </DialogTitle>
-          <DialogDescription className="text-center">
-            Give your server a personality with a name and an icon. You can
-            always change it later.
-          </DialogDescription>
         </DialogHeader>
 
         <div>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="imageUrl"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
+                    <FormLabel>Channel name</FormLabel>
                     <FormControl>
-                      <Upload endpoint="imageUploader" {...field} />
+                      <Input
+                        placeholder="Channel name"
+                        {...field}
+                        disabled={isUpdating}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -91,17 +109,23 @@ export default function CreateServerModal() {
 
               <FormField
                 control={form.control}
-                name="name"
+                name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Channel type</FormLabel>
                     <FormControl>
-                      <Input
-                        className="dark:bg-[#282b30]"
-                        placeholder="Server name"
-                        {...field}
-                        disabled={isUpdating}
-                      />
+                      <Select disabled={isUpdating}>
+                        <SelectTrigger className="w-[100%]">
+                          <SelectValue placeholder={ChannelType.TEXT} />
+                        </SelectTrigger>
+                        <SelectContent className="w-[100%]">
+                          {Object.values(ChannelType).map((item) => (
+                            <SelectItem key={item} value={item}>
+                              {item}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
