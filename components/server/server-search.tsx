@@ -22,7 +22,7 @@ export default function ServerSearch({ commandData }: ServerSearchProps) {
     if (type === "channel") {
       router.push(`/server/${serverId}/channel/${id}`);
     } else {
-      router.push(`/server/${serverId}/conversations/${id}`);
+      return router.push(`/server/${serverId}/conversations/${id}`);
     }
   }
 
@@ -35,7 +35,7 @@ export default function ServerSearch({ commandData }: ServerSearchProps) {
             {item.data.map((itemData) => (
               <CommandItem
                 key={itemData.id}
-                className="gap-2"
+                className="gap-2 cursor-pointer"
                 onSelect={() => handleItemClick(item.type, itemData.id)}
               >
                 {itemData.icon}

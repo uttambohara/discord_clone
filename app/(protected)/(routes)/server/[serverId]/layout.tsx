@@ -42,7 +42,7 @@ export default async function ServerLayout({
   )?.role;
 
   return (
-    <div className="grid grid-cols-[230px_1fr] h-full">
+    <div className="grid grid-cols-[250px_1fr] h-full">
       <ServerSidebar
         serverUserIsTheMemberOf={serverUserIsTheMemberOf}
         role={role}

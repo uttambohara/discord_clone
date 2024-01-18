@@ -54,9 +54,10 @@ export default function LeaveServerModal() {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="text-center">
-          <p>Are you sure you want to leave the server</p>
-          <span className="text-purple-600">#{server?.name}</span>
+        <div className="text-center text-sm">
+          This action cannot be undone. Are you sure you want to leave the
+          server{" "}
+          <span className="text-purple-600 text-xl"># {server?.name}</span>
         </div>
 
         <div className="flex items-center justify-between">
