@@ -8,7 +8,7 @@ export default async function initialProfile() {
 
   const existingProfile = await prisma.profile.findFirst({
     where: {
-      userId: user.id,
+      email: user.email,
     },
   });
 
