@@ -114,7 +114,11 @@ export default function CreateChannelModal() {
                   <FormItem>
                     <FormLabel>Channel type</FormLabel>
                     <FormControl>
-                      <Select disabled={isUpdating}>
+                      <Select
+                        disabled={isUpdating}
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger className="w-[100%]">
                           <SelectValue placeholder={ChannelType.TEXT} />
                         </SelectTrigger>
