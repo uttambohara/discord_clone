@@ -9,12 +9,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useModal } from "@/hooks/use-modal";
 import { CreateServerModal, createServerModal } from "@/schemas";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import AvatarEl from "../avatar";
 import { MemberRole } from "@prisma/client";
+import axios from "axios";
 import {
   Gavel,
   Loader,
@@ -24,23 +34,10 @@ import {
   ShieldCheck,
   ShieldQuestion,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 import queryString from "query-string";
-import axios from "axios";
+import { useState } from "react";
+import AvatarEl from "../avatar";
 
 const roleIconMap = {
   [MemberRole.ADMIN]: <ShieldAlert size={18} className="text-red-600" />,
@@ -77,7 +74,7 @@ export default function ManageMembersModal() {
       });
 
       const memberUpdatedServer = await axios.patch(query);
-
+      router.refresh();
       onOpen("manageMember", memberUpdatedServer.data.server);
     } catch (err) {
       console.log(err);
@@ -98,7 +95,7 @@ export default function ManageMembersModal() {
       });
 
       const memberUpdatedServer = await axios.patch(query);
-
+      router.refresh();
       onOpen("manageMember", memberUpdatedServer.data.server);
     } catch (err) {
       console.log(err);

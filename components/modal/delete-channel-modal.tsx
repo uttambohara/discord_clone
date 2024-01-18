@@ -13,10 +13,10 @@ import queryString from "query-string";
 import { useState } from "react";
 import { Button } from "../ui/button";
 
-export default function DeleteServerModal() {
+export default function DeleteChannelModal() {
   const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();
-  const { onClose, openModal, isOpen, server } = useModal();
+  const { onClose, openModal, isOpen, server, channel } = useModal();
 
   //   Form
 
@@ -24,7 +24,7 @@ export default function DeleteServerModal() {
     try {
       setIsUpdating(true);
       const query = queryString.stringifyUrl({
-        url: "/api/server",
+        url: `/api/channels/${channel?.id}`,
         query: {
           serverId: server?.id,
         },
@@ -42,27 +42,29 @@ export default function DeleteServerModal() {
   function handleClose() {
     onClose();
   }
-  const hasOpened = isOpen && openModal === "deleteServer";
+  const hasOpened = isOpen && openModal === "deleteChannel";
 
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
       <DialogContent className="dark:bg-[#36393e]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
-            Delete server
+            Delete channel
           </DialogTitle>
         </DialogHeader>
 
         <div className="text-center text-sm">
           This action cannot be undone. Are you sure you want to delete{" "}
-          <span className="text-purple-600 text-xl"># {server?.name}</span>
+          <span className="text-purple-600 text-xl"># {channel?.name}</span>
         </div>
 
         <div className="flex items-center justify-between">
-          <Button variant="outline" onClick={handleClose}>
+          <Button variant="outline" onClick={handleClose} disabled={isUpdating}>
             Cancel
           </Button>
-          <Button onClick={handleDeleteServer}>Delete</Button>
+          <Button onClick={handleDeleteServer} disabled={isUpdating}>
+            Delete
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

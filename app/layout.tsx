@@ -1,11 +1,11 @@
 import ModalProvider from "@/components/providers/modal-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import type { Metadata } from "next";
-import { Nunito_Sans } from "next/font/google";
+import { Philosopher } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 
-const inter = Nunito_Sans({
+const inter = Philosopher({
   subsets: ["latin"],
   weight: "400",
 });

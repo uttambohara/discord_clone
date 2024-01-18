@@ -12,7 +12,7 @@ export async function PATCH(request: NextRequest) {
     const url = new URL(request.url).searchParams;
     const serverId = url.get("serverId");
     if (!serverId)
-      return new NextResponse("ServerId doesn't exist!", { status: 400 });
+      return new NextResponse("Server Id doesn't exist!", { status: 400 });
 
     const { name, type } = await request.json();
 

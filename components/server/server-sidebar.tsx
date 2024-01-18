@@ -22,6 +22,7 @@ import {
   Activity,
   ChevronDown,
   Hash,
+  Plus,
   PlusCircle,
   Search,
   Settings,
@@ -36,22 +37,25 @@ import {
 import { useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
 import ServerSearch from "./server-search";
+import ServerSection from "./server-section";
+import ServerItem from "./server-item";
+import ServerMember from "./server-member";
 
 interface ServerSidebarProps {
   serverUserIsTheMemberOf: ServerWithMembersProfile;
   role?: MemberRole;
 }
 
-const channelTypeIconMap = {
+export const channelTypeIconMap = {
   [ChannelType.TEXT]: <Hash size={16} color="gray" />,
   [ChannelType.AUDIO]: <Activity size={16} color="gray" />,
   [ChannelType.VIDEO]: <Video size={16} color="gray" />,
 };
 
-const memberRoleIconMap = {
+export const memberRoleIconMap = {
   [MemberRole.GUEST]: <Shield size={16} color="gray" />,
-  [MemberRole.MODERATOR]: <ShieldCheck size={16} color="gray" />,
-  [MemberRole.ADMIN]: <ShieldAlert size={16} color="gray" />,
+  [MemberRole.MODERATOR]: <ShieldCheck size={16} color="purple" />,
+  [MemberRole.ADMIN]: <ShieldAlert size={16} color="red" />,
 };
 
 export default function ServerSidebar({
@@ -88,6 +92,7 @@ export default function ServerSidebar({
 
   return (
     <div className="border-r border-slate-100 h-full dark:border-white/10 dark:bg-[#282b30]">
+      {/* Server menu */}
       <DropdownMenu>
         <DropdownMenuTrigger className="w-full outline-none">
           <div className="border-b border-slate-100 h-full dark:border-white/10 w-full py-2.5 px-5 flex items-center justify-between shadow-sm">
@@ -159,6 +164,7 @@ export default function ServerSidebar({
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* Server search */}
       <div className="flex items-center justify-center">
         <button
           className="flex items-center justify-between px-3 w-[90%] py-2.5 border-b border-slate-200 dark:border-white/20"
@@ -219,6 +225,98 @@ export default function ServerSidebar({
             />
           </CommandList>
         </CommandDialog>
+      </div>
+
+      <div className="px-3 py-2 space-y-3">
+        {/* Server section*/}
+        {!!textChannel.length && (
+          <div>
+            <ServerSection
+              label="Text channel"
+              role={role}
+              type={"channel"}
+              server={serverUserIsTheMemberOf}
+              channelType={ChannelType.TEXT}
+            />
+            {textChannel.map((channel) => {
+              return (
+                <ServerItem
+                  channel={channel}
+                  key={channel.id}
+                  label={channel.name}
+                  icon={channelTypeIconMap[channel.type]}
+                  server={serverUserIsTheMemberOf}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {!!audioChannel.length && (
+          <div>
+            <ServerSection
+              label="Audio channel"
+              role={role}
+              type={"channel"}
+              server={serverUserIsTheMemberOf}
+              channelType={ChannelType.AUDIO}
+            />
+            {audioChannel.map((channel) => {
+              return (
+                <ServerItem
+                  channel={channel}
+                  key={channel.id}
+                  label={channel.name}
+                  icon={channelTypeIconMap[channel.type]}
+                  server={serverUserIsTheMemberOf}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {!!videoChannel.length && (
+          <div>
+            <ServerSection
+              label="Video channel"
+              role={role}
+              type={"channel"}
+              server={serverUserIsTheMemberOf}
+              channelType={ChannelType.VIDEO}
+            />
+            {videoChannel.map((channel) => {
+              return (
+                <ServerItem
+                  channel={channel}
+                  key={channel.id}
+                  label={channel.name}
+                  icon={channelTypeIconMap[channel.type]}
+                  server={serverUserIsTheMemberOf}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {!!serverUserIsTheMemberOf.members.length && (
+          <div>
+            <ServerSection
+              label="Members"
+              role={role}
+              type={"member"}
+              server={serverUserIsTheMemberOf}
+            />
+            {serverUserIsTheMemberOf.members.map((member) => (
+              <ServerMember
+                key={member.id}
+                imageUrl={member.profile?.imageUrl!}
+                name={member.profile?.name!}
+                role={member.role}
+                memberId={member.id}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -33,10 +33,11 @@ import queryString from "query-string";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-export default function CreateChannelModal() {
+export default function EditChannelModal() {
   const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();
-  const { onClose, openModal, isOpen, server, channelType } = useModal();
+  const { onClose, openModal, isOpen, server, channelType, channel } =
+    useModal();
 
   //   Form
   const form = useForm<CreateChannelModalT>({
@@ -48,19 +49,25 @@ export default function CreateChannelModal() {
   });
 
   useEffect(() => {
+    if (channel) {
+      form.setValue("name", channel.name);
+      form.setValue("type", channel.type);
+    }
+  }, [channel, form]);
+
+  useEffect(() => {
     if (channelType) {
       form.setValue("type", channelType);
     }
   }, [channelType, form]);
 
-  console.log({ channelType });
   async function onSubmit(values: CreateChannelModalT) {
-    console.log(values);
+    console.log({ values });
     try {
       setIsUpdating(true);
 
       const query = queryString.stringifyUrl({
-        url: "/api/channels",
+        url: `/api/channels/${channel?.id}`,
         query: {
           serverId: server?.id,
         },
@@ -80,7 +87,7 @@ export default function CreateChannelModal() {
     form.reset();
     onClose();
   }
-  const hasOpened = isOpen && openModal === "createChannel";
+  const hasOpened = isOpen && openModal === "editChannel";
 
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
@@ -142,7 +149,7 @@ export default function CreateChannelModal() {
               />
               <div className="flex">
                 <Button type="submit" disabled={isUpdating} className="ml-auto">
-                  Create
+                  Edit channel
                 </Button>
               </div>
             </form>
