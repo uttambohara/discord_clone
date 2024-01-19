@@ -53,3 +53,12 @@ export const createChannelModalT = z
   });
 
 export type CreateChannelModalT = z.infer<typeof createChannelModalT>;
+
+//
+export const messageSchema = z.object({
+  content: z.string().min(2, {
+    message: "Content must be at least 2 characters.",
+  }),
+});
+
+export type MessageSchema = z.infer<typeof messageSchema>;

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Philosopher } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import { SocketProvider } from "@/components/providers/socket-provider";
 
 const inter = Philosopher({
   subsets: ["latin"],
@@ -30,8 +31,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <ModalProvider />
-            {children}
+            <SocketProvider>
+              <ModalProvider />
+              {children}
+            </SocketProvider>
           </ThemeProvider>
         </body>
       </html>
