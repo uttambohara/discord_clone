@@ -120,8 +120,9 @@ model Member {
 }
 
 model Post {
-  id  String @id @default(cuid())
-  url String
+  id      String  @id @default(cuid())
+  content String
+  fileUrl String?
 
   channel   Channel? @relation(fields: [channelId], references: [id])
   channelId String?
