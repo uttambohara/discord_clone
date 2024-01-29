@@ -1,5 +1,6 @@
+import initialProfile from "@/data/initial-user";
 import { prisma } from "@/lib/prisma";
-import currentProfile from "@/lib/users/current-profile";
+import { MemberRole } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 export default async function InviteCode({
@@ -7,32 +8,42 @@ export default async function InviteCode({
 }: {
   params: { inviteCode: string };
 }) {
-  console.log("Working...");
-  const { inviteCode } = params;
+  const currentUser = await initialProfile();
 
-  const currentUser = await currentProfile();
-  if (!currentUser) return redirect("/auth/login");
-
-  const checkIfInviteCodeExists = await prisma.server.findFirst({
+  const checkIfTokenExists = await prisma.server.findFirst({
     where: {
-      inviteCode,
+      token: params.inviteCode,
     },
   });
 
-  if (!checkIfInviteCodeExists) return redirect("/");
+  if (!checkIfTokenExists) return redirect("/");
 
-  const addNewMemberInTheServer = await prisma.server.update({
+  const serverUserAlreadyIsTheMember = await prisma.server.findFirst({
     where: {
-      inviteCode,
-    },
-    data: {
+      token: params.inviteCode,
       members: {
-        create: {
+        some: {
           profileId: currentUser.id,
         },
       },
     },
   });
+  if (serverUserAlreadyIsTheMember)
+    return redirect(`/server/${serverUserAlreadyIsTheMember.id}`);
 
-  return redirect(`/server/${addNewMemberInTheServer.id}`);
+  const serverUserHasBeenAddedOn = await prisma.server.update({
+    where: {
+      token: params.inviteCode,
+    },
+    data: {
+      members: {
+        create: {
+          profileId: currentUser.id,
+          role: MemberRole.GUEST,
+        },
+      },
+    },
+  });
+
+  return redirect(`/server/${serverUserHasBeenAddedOn.id}`);
 }

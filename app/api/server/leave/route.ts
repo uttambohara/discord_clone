@@ -1,35 +1,27 @@
+import currentProfile from "@/data/current-profile";
 import { prisma } from "@/lib/prisma";
-import currentProfile from "@/lib/users/current-profile";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(request: NextRequest) {
   try {
-    const user = await currentProfile();
-    if (!user) return new NextResponse("Unauthorized!", { status: 401 });
+    const currentUser = await currentProfile();
+    if (!currentUser) return new NextResponse("Unauthorized!", { status: 401 });
 
     //
-    const url = new URL(request.url).searchParams;
-    const serverId = url.get("serverId");
+    const { searchParams } = new URL(request.url);
+    const serverId = searchParams.get("serverId");
+
     if (!serverId)
-      return new NextResponse("ServerId doesn't exist!", { status: 400 });
+      return new NextResponse("Server Id doesn't exist!", { status: 400 });
 
-    //
     await prisma.server.update({
       where: {
         id: serverId,
-        profileId: {
-          not: user.id,
-        },
-        members: {
-          some: {
-            profileId: user.id,
-          },
-        },
       },
       data: {
         members: {
           deleteMany: {
-            profileId: user.id,
+            profileId: currentUser.id,
           },
         },
       },
@@ -37,7 +29,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ status: "success" });
   } catch (err) {
-    console.log("create_server", err);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.log("leave_channel", err);
+    return new NextResponse("Internal error", { status: 500 });
   }
 }

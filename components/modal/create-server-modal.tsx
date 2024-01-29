@@ -1,8 +1,16 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -12,68 +20,55 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { CreateServerModal, createServerModal } from "@/schemas";
+import { CreateServerSchema, createServerSchema } from "@/schemas";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Upload from "../upload";
+import UploadContent from "../upload-content";
 import { useModal } from "@/hooks/use-modal";
+import { useRouter } from "next/navigation";
 
 export default function CreateServerModal() {
   const [isUpdating, setIsUpdating] = useState(false);
+  const { isOpen, openModal, onClose } = useModal();
   const router = useRouter();
-  const { onClose, openModal, isOpen } = useModal();
 
-  //   Form
-  const form = useForm<CreateServerModal>({
-    resolver: zodResolver(createServerModal),
+  // ...
+  const form = useForm<CreateServerSchema>({
+    resolver: zodResolver(createServerSchema),
     defaultValues: {
       imageUrl: "",
       name: "",
     },
   });
 
-  async function onSubmit(values: CreateServerModal) {
+  async function onSubmit(values: CreateServerSchema) {
     try {
       setIsUpdating(true);
       const createdServer = await axios.post("/api/server", values);
       router.refresh();
-      window.location.assign(`/server/${createdServer.data.server.id}`);
+      window.location.assign(`/server/${createdServer.data.createdServer.id}`);
     } catch (err) {
       console.log(err);
     } finally {
       setIsUpdating(false);
     }
   }
-
   function handleClose() {
     form.reset();
     onClose();
   }
+
   const hasOpened = isOpen && openModal === "createServer";
 
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
-      <DialogContent className="dark:bg-[#36393e]">
+      <DialogContent className="dark:bg-[#282b30]">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl">
-            Customize your server
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            Give your server a personality with a name and an icon. You can
-            always change it later.
+          <DialogTitle>Create a server</DialogTitle>
+          <DialogDescription>
+            Give your server a personality by giving it a name and an image.
           </DialogDescription>
-        </DialogHeader>
 
-        <div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
@@ -82,39 +77,36 @@ export default function CreateServerModal() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Upload endpoint="imageUploader" {...field} />
+                      <UploadContent endpoint="imageUploader" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Server name</FormLabel>
                     <FormControl>
                       <Input
-                        className="dark:bg-[#282b30]"
-                        placeholder="Server name"
+                        placeholder="Name"
                         {...field}
                         disabled={isUpdating}
+                        className="dark:bg-[#36393e]"
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <div className="flex">
-                <Button type="submit" disabled={isUpdating} className="ml-auto">
-                  Create
-                </Button>
-              </div>
+              <Button type="submit" disabled={isUpdating}>
+                Create
+              </Button>
             </form>
           </Form>
-        </div>
+        </DialogHeader>
       </DialogContent>
     </Dialog>
   );

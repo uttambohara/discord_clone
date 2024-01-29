@@ -3,68 +3,76 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useModal } from "@/hooks/use-modal";
-import { CreateChannelModalT } from "@/schemas";
-import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import queryString from "query-string";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import queryString from "query-string";
 
 export default function LeaveServerModal() {
   const [isUpdating, setIsUpdating] = useState(false);
+  const { isOpen, onOpen, openModal, onClose, data } = useModal();
   const router = useRouter();
-  const { onClose, openModal, isOpen, server } = useModal();
 
-  //   Form
+  // ...
 
-  async function handleDeleteServer() {
+  async function handleLeaveServer() {
     try {
       setIsUpdating(true);
-      const query = queryString.stringifyUrl({
+      const url = queryString.stringifyUrl({
         url: "/api/server/leave",
         query: {
-          serverId: server?.id,
+          serverId: data.server?.id,
         },
       });
-      await axios.patch(query);
+      await axios.patch(url);
       router.refresh();
-      window.location.reload();
+      handleClose();
     } catch (err) {
       console.log(err);
     } finally {
       setIsUpdating(false);
     }
   }
-
   function handleClose() {
     onClose();
   }
-  const hasOpened = isOpen && openModal === "leaveServer";
 
+  const hasOpened = isOpen && openModal === "leaveServer";
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
-      <DialogContent className="dark:bg-[#36393e]">
+      <DialogContent className="dark:bg-[#282b30]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
             Leave server
           </DialogTitle>
+          <DialogDescription>
+            <span className="mb-3 text-center">
+              Are you sure you wish to leave
+              <span className="font-bold text-xl"> #{data?.server?.name}</span>.
+              You cannot undo this action.
+            </span>
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="text-center text-sm">
-          This action cannot be undone. Are you sure you want to leave the
-          server{" "}
-          <span className="text-purple-600 text-xl"># {server?.name}</span>
-        </div>
-
         <div className="flex items-center justify-between">
-          <Button variant="outline" onClick={handleClose} disabled={isUpdating}>
+          <Button
+            variant={"outline"}
+            onClick={handleClose}
+            disabled={isUpdating}
+          >
             Cancel
           </Button>
-          <Button onClick={handleDeleteServer} disabled={isUpdating}>
+          <Button
+            variant="destructive"
+            onClick={handleLeaveServer}
+            disabled={isUpdating}
+          >
             Leave
           </Button>
         </div>

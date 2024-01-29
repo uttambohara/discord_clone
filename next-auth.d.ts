@@ -1,12 +1,15 @@
+// auth.ts
+import { UserRole } from "@prisma/client";
+import "next-auth";
 import { DefaultSession } from "next-auth";
 
 type ExtendedUser = DefaultSession["user"] & {
-  id: string;
+  role: UserRole;
 };
 
+// Declare your framework library
 declare module "next-auth" {
   interface Session {
-    /** The user's postal address. */
     user: ExtendedUser;
   }
 }

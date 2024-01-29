@@ -1,20 +1,12 @@
+// prisma/schema.prisma
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  accounts      Account[]
 }
 
 model Account {
@@ -36,40 +28,79 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-model VerificationCode {
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  password      String?
+
+  image    String?
+  accounts Account[]
+}
+
+model VerificationToken {
   id      String   @id @default(cuid())
-  token   String
   email   String
+  token   String
   expires DateTime
+
+  @@unique([email, token])
 }
 
 // 
+// User create profile
+//  Profile  creates server 
+//  Server has member and channel
 
 model Profile {
-  id       String  @id @default(cuid())
+  id       String  @id @default(uuid())
   userId   String
-  name     String?
+  name     String
   email    String?
   imageUrl String?
 
   servers  Server[]
-  channels Channel[]
   members  Member[]
+  channels Channel[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Server {
-  id         String @id @default(cuid())
-  name       String
-  imageUrl   String
-  inviteCode String @unique
+  id       String  @id @default(uuid())
+  name     String
+  token    String  @unique
+  imageUrl String?
 
-  channels  Channel[]
   members   Member[]
-  profile   Profile?  @relation(fields: [profileId], references: [id])
+  channels  Channel[]
+  profile   Profile?  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+}
+
+enum MemberRole {
+  ADMIN
+  GUEST
+  MODERATOR
+}
+
+model Member {
+  id   String     @id @default(uuid())
+  role MemberRole @default(GUEST)
+
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String?
+  channel   Channel? @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId String?
+  server    Server?  @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  serverId  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -82,52 +113,15 @@ enum ChannelType {
 }
 
 model Channel {
-  id   String      @id @default(cuid())
-  name String
-  type ChannelType @default(TEXT)
+  id          String      @id @default(uuid())
+  name        String
+  channelType ChannelType @default(TEXT)
 
-  posts     Post[]
   members   Member[]
-  profile   Profile? @relation(fields: [profileId], references: [id])
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId String?
-  server    Server?  @relation(fields: [serverId], references: [id])
+  server    Server?  @relation(fields: [serverId], references: [id], onDelete: Cascade)
   serverId  String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-enum MemberRole {
-  GUEST
-  ADMIN
-  MODERATOR
-}
-
-model Member {
-  id   String     @id @default(cuid())
-  role MemberRole @default(GUEST)
-
-  posts     Post[]
-  profile   Profile? @relation(fields: [profileId], references: [id])
-  profileId String?
-  channel   Channel? @relation(fields: [channelId], references: [id])
-  channelId String?
-  server    Server?  @relation(fields: [serverId], references: [id])
-  serverId  String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Post {
-  id      String  @id @default(cuid())
-  content String
-  fileUrl String?
-
-  channel   Channel? @relation(fields: [channelId], references: [id])
-  channelId String?
-  member    Member?  @relation(fields: [memberId], references: [id])
-  memberId  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

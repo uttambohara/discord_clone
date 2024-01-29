@@ -1,5 +1,6 @@
+import currentProfile from "@/data/current-profile";
 import { prisma } from "@/lib/prisma";
-import currentProfile from "@/lib/users/current-profile";
+import { createServerSchema } from "@/schemas";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
@@ -7,28 +8,44 @@ export async function PATCH(
   { params }: { params: { serverId: string } }
 ) {
   try {
-    const user = await currentProfile();
-    if (!user) return new NextResponse("Unauthorized!", { status: 401 });
+    const currentUser = await currentProfile();
+    if (!currentUser) return new NextResponse("Unauthorized!", { status: 401 });
+
+    // Validating value
+    const values = await request.json();
+    const validatedValue = createServerSchema.safeParse(values);
+    if (!validatedValue.success)
+      return new NextResponse("Invalid field!", { status: 400 });
+
     //
-    const { name, imageUrl } = await request.json();
-    //
-    const inviteCodeUpdatedServer = await prisma.server.update({
+    const { serverId } = params;
+    if (!serverId)
+      return new NextResponse("Server id is missing!", { status: 400 });
+
+    //  Update server
+    const { imageUrl, name } = validatedValue.data;
+    const updatedServer = await prisma.server.update({
       where: {
-        id: params.serverId,
-        profileId: user.id,
+        id: serverId,
+        profileId: currentUser.id,
       },
       data: {
-        name,
         imageUrl,
+        name,
+      },
+      include: {
+        members: {
+          include: {
+            profile: true,
+          },
+        },
+        channels: true,
       },
     });
 
-    return NextResponse.json({
-      status: "success",
-      server: inviteCodeUpdatedServer,
-    });
+    return NextResponse.json({ status: "success", updatedServer });
   } catch (err) {
     console.log("update_server", err);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse("Internal error", { status: 500 });
   }
 }

@@ -1,27 +1,25 @@
-import NextAuth from "next-auth";
 import authConfig from "./auth.config";
-
+import NextAuth from "next-auth";
 import {
-  authRoutes,
-  prefixApiRoutes,
-  publicRoutes,
   LOGIN_SUCCESS_REDIRECT,
+  authRoutes,
+  prefixAPIRoute,
+  publicRoutes,
 } from "./routes";
-
 export const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   // req.auth
-  const isLoggedIn = !!req.auth;
   const { pathname } = req.nextUrl;
+  const isLoggedIn = !!req.auth;
 
   const isPublicRoute = publicRoutes.includes(pathname);
-  const isAuthRoute = authRoutes.includes(pathname);
-  const isPrefixAPIRoute = pathname.startsWith(prefixApiRoutes);
+  const isAuthRoutes = authRoutes.includes(pathname);
+  const isAPIprefixedRoute = pathname.startsWith(prefixAPIRoute);
 
-  if (isPrefixAPIRoute) return null;
+  if (isAPIprefixedRoute) return null;
 
-  if (isAuthRoute) {
+  if (isAuthRoutes) {
     if (isLoggedIn) {
       return Response.redirect(new URL(LOGIN_SUCCESS_REDIRECT, req.nextUrl));
     }

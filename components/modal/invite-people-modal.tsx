@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,89 +9,99 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useModal } from "@/hooks/use-modal";
-import useOrigin from "@/hooks/use-origin";
 import axios from "axios";
 import { Check, Copy, RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
+import queryString from "query-string";
 import { useState } from "react";
+import { Button } from "../ui/button";
 
 export default function InvitePeopleModal() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
-
+  const { isOpen, onOpen, openModal, onClose, data } = useModal();
   const router = useRouter();
-  const { onClose, onOpen, openModal, isOpen, server } = useModal();
-  const origin = useOrigin();
 
-  const invitationLink = `${origin}/invite-code/${server?.inviteCode}`;
+  // ...
+  const origin = typeof window !== undefined ? window.location.origin : "";
+  const invitationLink = `${origin}/invite-code/${data?.server?.token}`;
 
   async function handleGenerateNewLink() {
     try {
       setIsUpdating(true);
-      const inviteCodeUpdatedServer = await axios.patch(
-        `/api/server/${server?.id}/invite`
-      );
+      const url = queryString.stringifyUrl({
+        url: "/api/server/invite",
+        query: {
+          serverId: data.server?.id,
+        },
+      });
+      const updatedServer = await axios.patch(url);
       router.refresh();
-      onOpen("invitePeople", inviteCodeUpdatedServer.data.server);
+      onOpen("invitePeople", { server: updatedServer.data.updatedServer });
     } catch (err) {
       console.log(err);
     } finally {
       setIsUpdating(false);
     }
   }
-
-  function handleCopy() {
-    setIsCopying(true);
-    navigator.clipboard.writeText(invitationLink);
-    setTimeout(() => setIsCopying(false), 2000);
-  }
-
-  const hasOpened = isOpen && openModal === "invitePeople";
-
   function handleClose() {
     onClose();
   }
 
+  function handleCopy() {
+    setIsCopying(true);
+    navigator.clipboard.writeText(invitationLink);
+    setTimeout(() => {
+      setIsCopying(false);
+    }, 2000);
+  }
+
+  const hasOpened = isOpen && openModal === "invitePeople";
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
-      <DialogContent className="dark:bg-[#36393e]">
+      <DialogContent className="dark:bg-[#282b30]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
             Invite friends
           </DialogTitle>
-          <DialogDescription className="text-center">
-            Send this invitation code to invite your friends to the server...
+          <DialogDescription>
+            <span className="mb-3 text-center">
+              Share this link with your friends to invite them to your server.
+            </span>
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center gap-3">
-          <Input
-            value={invitationLink}
-            readOnly
-            disabled={isUpdating || isCopying}
-          />
-          {isCopying ? (
-            <Check size={16} />
-          ) : (
-            <button
-              className="border p-1 rounded-md cursor-pointer"
-              onClick={handleCopy}
-              disabled={isUpdating}
-            >
-              <Copy size={16} />
-            </button>
-          )}
-        </div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Input
+              value={invitationLink}
+              readOnly
+              disabled={isCopying || isUpdating}
+            />
+            {!isCopying ? (
+              <div
+                className="border p-1 rounded-sm cursor-pointer"
+                onClick={handleCopy}
+              >
+                <Copy size={16} />
+              </div>
+            ) : (
+              <div className="p-1 rounded-sm" onClick={handleCopy}>
+                <Check size={16} />
+              </div>
+            )}
+          </div>
 
-        <Button
-          className="flex items-center text-sm gap-2 justify-start"
-          variant={"link"}
-          onClick={handleGenerateNewLink}
-          disabled={isUpdating}
-        >
-          <p>Generate a new link</p>
-          <RefreshCcw size={16} />
-        </Button>
+          <Button
+            className="flex items-center gap-1 text-sm text-zinc-500"
+            variant={"link"}
+            disabled={isUpdating}
+            onClick={handleGenerateNewLink}
+          >
+            <RefreshCcw size={16} />
+            Generate a new link
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
