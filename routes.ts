@@ -1,9 +1,8 @@
-export const publicRoutes: String[] = [];
+export const LOGIN_SUCCESS_REDIRECT = "/";
+export const publicRoutes: string[] = ["/api/uploadthing"];
 export const authRoutes = [
   "/auth/login",
   "/auth/register",
-  "/auth/error",
   "/auth/new-verification",
 ];
-export const prefixApiRoutes = "/api/auth";
-export const LOGIN_SUCCESS_REDIRECT = "/";
+export const prefixAPIRoute = "/api/auth";

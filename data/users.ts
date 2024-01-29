@@ -1,15 +1,15 @@
 import { prisma } from "@/lib/prisma";
 
-export async function getUserById(id: string) {
-  return await prisma.user.findFirst({
+export function getUserById(id: string) {
+  return prisma.user.findUnique({
     where: {
       id,
     },
   });
 }
 
-export async function getUserByEmail(email: string) {
-  return await prisma.user.findFirst({
+export function getUserByEmail(email: string) {
+  return prisma.user.findFirst({
     where: {
       email,
     },

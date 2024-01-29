@@ -1,13 +1,20 @@
 import { Resend } from "resend";
 
-export async function sendVerificationEmail(email: string, token: string) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  const tokenUrl = `http://localhost:3000/auth/new-verification?token=${token}`;
+export const sendVerificationTokenByEmail = async function (
+  email: string,
+  token: string
+) {
+  try {
+    const verificationLink = `http://localhost:3000/auth/new-verification/?token=${token}`;
+    const resend = new Resend("re_WYgHihx8_6e9eSmsdv4XDbcVR8wMuRkiN");
 
-  await resend.emails.send({
-    from: "Acme <onboarding@resend.dev>",
-    to: email,
-    subject: "Register: Verification code ",
-    html: `<p>Click <a href=${tokenUrl}>here</a> to verify your code.</p>`,
-  });
-}
+    return resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: email,
+      subject: "Verification token",
+      html: `<p>Your verification token is <a  href=${verificationLink}>here</a> </strong></p>`,
+    });
+  } catch (err) {
+    return err;
+  }
+};

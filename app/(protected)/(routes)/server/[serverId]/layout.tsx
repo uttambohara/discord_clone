@@ -1,8 +1,7 @@
-import ServerSidebar from "@/components/server/server-sidebar";
+import ServerHead from "@/components/server/server-head";
+import initialProfile from "@/data/initial-user";
 import { prisma } from "@/lib/prisma";
-import currentProfile from "@/lib/users/current-profile";
 import { redirect } from "next/navigation";
-import React from "react";
 
 export default async function ServerLayout({
   children,
@@ -11,14 +10,11 @@ export default async function ServerLayout({
   children: React.ReactNode;
   params: { serverId: string };
 }) {
-  const { serverId } = params;
+  const currentUser = await initialProfile();
 
-  const currentUser = await currentProfile();
-  if (!currentUser) return redirect("/");
-
-  const serverUserIsTheMemberOf = await prisma.server.findFirst({
+  const serverUserIsThePartOf = await prisma.server.findFirst({
     where: {
-      id: serverId,
+      id: params.serverId,
       members: {
         some: {
           profileId: currentUser.id,
@@ -35,18 +31,16 @@ export default async function ServerLayout({
     },
   });
 
-  if (!serverUserIsTheMemberOf) return redirect("/");
-
-  const role = serverUserIsTheMemberOf.members.find(
-    (member) => member.profileId === currentUser.id
-  )?.role;
+  if (!serverUserIsThePartOf) return redirect("/");
 
   return (
     <div className="grid grid-cols-[250px_1fr] h-full">
-      <ServerSidebar
-        serverUserIsTheMemberOf={serverUserIsTheMemberOf}
-        role={role}
-      />
+      <div className="border-r border-slate-200 bg-zinc-200 dark:border-zinc-200/10 dark:bg-[#282b30]">
+        <ServerHead
+          serverUserIsThePartOf={serverUserIsThePartOf}
+          profileId={currentUser.id}
+        />
+      </div>
       <main className="dark:bg-[#36393e]">{children}</main>
     </div>
   );

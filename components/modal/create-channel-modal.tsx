@@ -1,4 +1,14 @@
 "use client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,57 +26,38 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useModal } from "@/hooks/use-modal";
-import { CreateChannelModalT, createChannelModalT } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { ChannelModalSchema, channelModalSchema } from "@/schemas";
 import { ChannelType } from "@prisma/client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import queryString from "query-string";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
 
 export default function CreateChannelModal() {
   const [isUpdating, setIsUpdating] = useState(false);
+  const { isOpen, onOpen, openModal, onClose, data } = useModal();
   const router = useRouter();
-  const { onClose, openModal, isOpen, server, channelType } = useModal();
 
-  //   Form
-  const form = useForm<CreateChannelModalT>({
-    resolver: zodResolver(createChannelModalT),
+  // ...
+  const form = useForm<ChannelModalSchema>({
+    resolver: zodResolver(channelModalSchema),
     defaultValues: {
       name: "",
       type: ChannelType.TEXT,
     },
   });
 
-  useEffect(() => {
-    if (channelType) {
-      form.setValue("type", channelType);
-    }
-  }, [channelType, form]);
-
-  console.log({ channelType });
-  async function onSubmit(values: CreateChannelModalT) {
-    console.log(values);
+  async function onSubmit(values: ChannelModalSchema) {
     try {
       setIsUpdating(true);
-
-      const query = queryString.stringifyUrl({
+      const qs = queryString.stringifyUrl({
         url: "/api/channels",
         query: {
-          serverId: server?.id,
+          serverId: data.server?.id,
         },
       });
-
-      await axios.patch(query, values);
+      await axios.post(qs, values);
       router.refresh();
       window.location.reload();
     } catch (err) {
@@ -75,43 +66,21 @@ export default function CreateChannelModal() {
       setIsUpdating(false);
     }
   }
-
   function handleClose() {
     form.reset();
     onClose();
   }
+
   const hasOpened = isOpen && openModal === "createChannel";
 
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
-      <DialogContent className="dark:bg-[#36393e]">
+      <DialogContent className="dark:bg-[#282b30]">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl">
-            Create channel
-          </DialogTitle>
-        </DialogHeader>
+          <DialogTitle className="text-center">Create a channel</DialogTitle>
 
-        <div>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Channel name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Channel name"
-                        {...field}
-                        disabled={isUpdating}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
               <FormField
                 control={form.control}
                 name="type"
@@ -120,17 +89,16 @@ export default function CreateChannelModal() {
                     <FormLabel>Channel type</FormLabel>
                     <FormControl>
                       <Select
-                        disabled={isUpdating}
                         onValueChange={field.onChange}
-                        value={field.value}
+                        defaultValue={field.value}
                       >
-                        <SelectTrigger className="w-[100%]">
+                        <SelectTrigger className="w-full" disabled={isUpdating}>
                           <SelectValue placeholder={ChannelType.TEXT} />
                         </SelectTrigger>
-                        <SelectContent className="w-[100%]">
-                          {Object.values(ChannelType).map((item) => (
-                            <SelectItem key={item} value={item}>
-                              {item}
+                        <SelectContent>
+                          {Object.entries(ChannelType).map(([item, value]) => (
+                            <SelectItem value={value} key={item}>
+                              {value}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -140,14 +108,30 @@ export default function CreateChannelModal() {
                   </FormItem>
                 )}
               />
-              <div className="flex">
-                <Button type="submit" disabled={isUpdating} className="ml-auto">
-                  Create
-                </Button>
-              </div>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Channel name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Name"
+                        {...field}
+                        disabled={isUpdating}
+                        className="dark:bg-[#36393e]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" disabled={isUpdating}>
+                Create a channel
+              </Button>
             </form>
           </Form>
-        </div>
+        </DialogHeader>
       </DialogContent>
     </Dialog>
   );

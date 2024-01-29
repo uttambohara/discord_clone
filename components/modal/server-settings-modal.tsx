@@ -1,8 +1,16 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -12,75 +20,69 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useModal } from "@/hooks/use-modal";
-import { CreateServerModal, createServerModal } from "@/schemas";
+import { CreateServerSchema, createServerSchema } from "@/schemas";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Upload from "../upload";
+import UploadContent from "../upload-content";
+import { useModal } from "@/hooks/use-modal";
+import { useRouter } from "next/navigation";
+import queryString from "query-string";
 
 export default function ServerSettingModal() {
   const [isUpdating, setIsUpdating] = useState(false);
+  const { isOpen, onOpen, openModal, onClose, data } = useModal();
   const router = useRouter();
-  const { onOpen, onClose, openModal, isOpen, server } = useModal();
 
-  //   Form
-  const form = useForm<CreateServerModal>({
-    resolver: zodResolver(createServerModal),
+  // ...
+  const form = useForm<CreateServerSchema>({
+    resolver: zodResolver(createServerSchema),
     defaultValues: {
       imageUrl: "",
       name: "",
     },
   });
 
-  useEffect(() => {
-    if (server) {
-      form.setValue("imageUrl", server.imageUrl);
-      form.setValue("name", server.name);
-    }
-  }, [server, form]);
-
-  async function onSubmit(values: CreateServerModal) {
+  async function onSubmit(values: CreateServerSchema) {
     try {
       setIsUpdating(true);
-      await axios.patch(`/api/server/${server?.id}`, values);
+      const createdServer = await axios.patch(
+        `/api/server/${data?.server?.id}`,
+        values
+      );
       router.refresh();
-      window.location.reload();
+      onOpen("serverSetting", { server: createdServer.data.updatedServer });
     } catch (err) {
       console.log(err);
     } finally {
       setIsUpdating(false);
     }
   }
-
   function handleClose() {
     form.reset();
     onClose();
   }
+
+  useEffect(
+    function () {
+      if (data) {
+        form.setValue("imageUrl", data?.server?.imageUrl!);
+        form.setValue("name", data?.server?.name!);
+      }
+    },
+    [data]
+  );
+
   const hasOpened = isOpen && openModal === "serverSetting";
 
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
-      <DialogContent className="dark:bg-[#36393e]">
+      <DialogContent className="dark:bg-[#282b30]">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl">
-            Customize your server
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            Give your server a personality with a name and an icon. You can
-            always change it later.
+          <DialogTitle>Create a server</DialogTitle>
+          <DialogDescription>
+            Give your server a personality by giving it a name and an image.
           </DialogDescription>
-        </DialogHeader>
 
-        <div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
@@ -89,39 +91,36 @@ export default function ServerSettingModal() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Upload endpoint="imageUploader" {...field} />
+                      <UploadContent endpoint="imageUploader" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Server name</FormLabel>
                     <FormControl>
                       <Input
-                        className="dark:bg-[#282b30]"
-                        placeholder="Server name"
+                        placeholder="Name"
                         {...field}
                         disabled={isUpdating}
+                        className="dark:bg-[#36393e]"
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <div className="flex">
-                <Button type="submit" disabled={isUpdating} className="ml-auto">
-                  Update
-                </Button>
-              </div>
+              <Button type="submit" disabled={isUpdating}>
+                Update
+              </Button>
             </form>
           </Form>
-        </div>
+        </DialogHeader>
       </DialogContent>
     </Dialog>
   );

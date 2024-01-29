@@ -1,6 +1,16 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import {
   Dialog,
@@ -9,202 +19,184 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useModal } from "@/hooks/use-modal";
-import { CreateServerModal, createServerModal } from "@/schemas";
 import { MemberRole } from "@prisma/client";
+import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import {
+  Check,
   Gavel,
-  Loader,
-  MoreVerticalIcon,
+  Loader2,
   Shield,
   ShieldAlert,
   ShieldCheck,
-  ShieldQuestion,
 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import queryString from "query-string";
 import { useState } from "react";
-import AvatarEl from "../avatar";
 
-const roleIconMap = {
-  [MemberRole.ADMIN]: <ShieldAlert size={18} className="text-red-600" />,
-  [MemberRole.MODERATOR]: <ShieldCheck size={18} />,
-  [MemberRole.GUEST]: <Shield size={18} />,
+export const roleIconMap = {
+  [MemberRole.ADMIN]: <ShieldAlert color="red" size={18} />,
+  [MemberRole.MODERATOR]: <ShieldCheck color="purple" size={18} />,
+  [MemberRole.GUEST]: <Shield color="gray" size={18} />,
 };
 
 export default function ManageMembersModal() {
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [updatingUser, setIsUpdatingUser] = useState("");
-
+  const [isUpdating, setIsUpdating] = useState("");
+  const { isOpen, onOpen, openModal, onClose, data } = useModal();
   const router = useRouter();
-  const { onOpen, onClose, openModal, isOpen, server } = useModal();
 
-  //   Form
-  const form = useForm<CreateServerModal>({
-    resolver: zodResolver(createServerModal),
-    defaultValues: {
-      imageUrl: "",
-      name: "",
-    },
-  });
+  // ...
 
-  async function handleUpdateRole(memberId: string, role: MemberRole) {
+  function handleClose() {
+    onClose();
+  }
+
+  async function handleMemberKick(memberId: string) {
     try {
-      setIsUpdatingUser(memberId);
-      const query = queryString.stringifyUrl({
+      setIsUpdating(memberId);
+      const qs = queryString.stringifyUrl({
         url: "/api/members",
         query: {
-          serverId: server?.id,
-          memberId,
+          serverId: data.server?.id,
+          memberId: memberId,
+        },
+      });
+      const updatedData = await axios.delete(qs);
+      router.refresh();
+      onOpen("manageMembers", { server: updatedData.data.updatedServer });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsUpdating("");
+    }
+  }
+
+  async function handleRoleChange(memberId: string, role: MemberRole) {
+    try {
+      setIsUpdating(memberId);
+      const qs = queryString.stringifyUrl({
+        url: "/api/members",
+        query: {
+          serverId: data.server?.id,
+          memberId: memberId,
           role,
         },
       });
-
-      const memberUpdatedServer = await axios.patch(query);
+      const updatedData = await axios.patch(qs);
       router.refresh();
-      onOpen("manageMember", memberUpdatedServer.data.server);
+      onOpen("manageMembers", { server: updatedData.data.updatedServer });
     } catch (err) {
       console.log(err);
     } finally {
-      setIsUpdatingUser("");
+      setIsUpdating("");
     }
   }
 
-  async function handleKickUser(memberId: string) {
-    try {
-      setIsUpdatingUser(memberId);
-      const query = queryString.stringifyUrl({
-        url: "/api/members/removeUser",
-        query: {
-          serverId: server?.id,
-          memberId,
-        },
-      });
-
-      const memberUpdatedServer = await axios.patch(query);
-      router.refresh();
-      onOpen("manageMember", memberUpdatedServer.data.server);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsUpdatingUser("");
-    }
-  }
-
-  function handleClose() {
-    form.reset();
-    onClose();
-  }
-  const hasOpened = isOpen && openModal === "manageMember";
-
-  console.log({ server });
-
+  const hasOpened = isOpen && openModal === "manageMembers";
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
-      <DialogContent className="dark:bg-[#36393e] space-y-4">
+      <DialogContent className="dark:bg-[#282b30]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
             Manage members
           </DialogTitle>
-          <DialogDescription className="text-center">
-            Manage and customize the role of the users.
+          <DialogDescription>
+            <span className="mb-3 text-center">
+              Add and assume member roles for the participants.
+            </span>
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {server?.members.map((member) => (
-            <div key={member.id}>
-              <div className="flex items-center gap-4">
-                <AvatarEl src={member.profile?.imageUrl || ""} />
-                <div className="w-full">
-                  <div className="flex items-center gap-1">
-                    {member.profile?.name}
-                    <span>
-                      {member.role !== MemberRole.GUEST &&
-                        roleIconMap[member.role]}
-                    </span>
-                  </div>
-                  <span className="text-sm text-slate-500 flex items-center justify-between">
-                    {member.profile?.email}
-                  </span>
-                </div>
-                <div>
-                  {server.profileId !== member.profileId && (
-                    <div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild className="cursor-pointer">
-                          {updatingUser === member.id ? (
-                            <Loader className="animate-spin" size={16} />
-                          ) : (
-                            <MoreVerticalIcon size={16} />
-                          )}
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-26">
-                          <DropdownMenuGroup>
-                            <DropdownMenuGroup>
-                              <DropdownMenuSub>
-                                <DropdownMenuSubTrigger className="flex items-center gap-2">
-                                  <ShieldQuestion size={20} />
-                                  Invite users
-                                </DropdownMenuSubTrigger>
-                                <DropdownMenuPortal>
-                                  <DropdownMenuSubContent>
-                                    <DropdownMenuItem
-                                      className="flex items-center gap-2"
-                                      onSelect={() =>
-                                        handleUpdateRole(
-                                          member.id,
-                                          MemberRole.GUEST
-                                        )
-                                      }
-                                    >
-                                      {roleIconMap[MemberRole.GUEST]}
-                                      Guest
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      className="flex items-center gap-2"
-                                      onSelect={() =>
-                                        handleUpdateRole(
-                                          member.id,
-                                          MemberRole.MODERATOR
-                                        )
-                                      }
-                                    >
-                                      {roleIconMap[MemberRole.MODERATOR]}
-                                      Moderator
-                                    </DropdownMenuItem>
-                                  </DropdownMenuSubContent>
-                                </DropdownMenuPortal>
-                              </DropdownMenuSub>
-                            </DropdownMenuGroup>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="flex items-center gap-2"
-                              onClick={() => handleKickUser(member.id)}
-                            >
-                              <Gavel size={20} />
-                              Kick
-                            </DropdownMenuItem>
-                          </DropdownMenuGroup>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  )}
-                </div>
+        <div className="space-y-3">
+          {data?.server?.members?.map((member) => (
+            <div key={member.id} className="flex items-center gap-3">
+              <div className="relative h-12 w-12">
+                <Image
+                  src={member.profile?.imageUrl as string}
+                  alt={member.profile?.name as string}
+                  fill
+                  priority
+                  className="rounded-full"
+                />
               </div>
+              <div>
+                <h2 className="flex items-center gap-1">
+                  {member.profile?.name}
+                  {roleIconMap[member.role]}
+                </h2>
+                <p className="text-sm text-slate-400">
+                  {member.profile?.email}
+                </p>
+              </div>
+              {member.role !== MemberRole.ADMIN && (
+                <div className="ml-auto">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      {isUpdating === member.id ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <DotsVerticalIcon />
+                      )}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className="w-18"
+                      align="start"
+                      side="top"
+                    >
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem
+                          className="flex items-center justify-between"
+                          onSelect={() => handleMemberKick(member.id)}
+                        >
+                          <span>Kick</span>
+                          <Gavel size={18} />
+                        </DropdownMenuItem>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>Role</DropdownMenuSubTrigger>
+                          <DropdownMenuPortal>
+                            <DropdownMenuSubContent>
+                              <DropdownMenuItem
+                                className="flex items-center justify-between gap-3"
+                                onSelect={() =>
+                                  handleRoleChange(
+                                    member.id,
+                                    MemberRole.MODERATOR
+                                  )
+                                }
+                              >
+                                <span className="flex items-center gap-1">
+                                  {roleIconMap[MemberRole.MODERATOR]}
+                                  Moderator
+                                </span>
+
+                                {member.role === MemberRole.MODERATOR && (
+                                  <Check size={15} />
+                                )}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="flex items-center justify-between gap-3"
+                                onSelect={() =>
+                                  handleRoleChange(member.id, MemberRole.GUEST)
+                                }
+                              >
+                                <span className="flex items-center gap-1">
+                                  {roleIconMap[MemberRole.GUEST]}
+                                  Guest
+                                </span>
+                                {member.role === MemberRole.GUEST && (
+                                  <Check size={15} />
+                                )}
+                              </DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                          </DropdownMenuPortal>
+                        </DropdownMenuSub>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
             </div>
           ))}
         </div>
