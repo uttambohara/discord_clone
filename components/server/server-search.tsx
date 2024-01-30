@@ -10,22 +10,17 @@ import {
 
 import { ServerWithMembersWithChannels } from "@/types";
 import { ChannelType } from "@prisma/client";
-import { Activity, Hash, Play, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
-import { roleIconMap } from "../modal/manage-members-modal";
+
+import { channelconMap, roleIconMap } from "@/lib/icon-map";
 import ServerSearchCommand from "./server-command";
 
 interface ServerSearchProp {
   serverUserIsThePartOf: ServerWithMembersWithChannels;
   profileId: string;
 }
-
-export const channelconMap = {
-  [ChannelType.TEXT]: <Hash color="gray" />,
-  [ChannelType.AUDIO]: <Activity color="gray" />,
-  [ChannelType.VIDEO]: <Play color="gray" />,
-};
 
 export default function ServerSearch({
   serverUserIsThePartOf,
