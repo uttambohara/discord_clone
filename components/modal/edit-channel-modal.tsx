@@ -30,11 +30,11 @@ import { useModal } from "@/hooks/use-modal";
 import { ChannelModalSchema, channelModalSchema } from "@/schemas";
 import { ChannelType } from "@prisma/client";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import queryString from "query-string";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function CreateChannelModal() {
+export default function EditChannelModal() {
   const [isUpdating, setIsUpdating] = useState(false);
   const { isOpen, onOpen, openModal, onClose, data } = useModal();
   const router = useRouter();
@@ -48,18 +48,28 @@ export default function CreateChannelModal() {
     },
   });
 
+  useEffect(() => {
+    if (data) {
+      form.setValue("name", data.channelData?.channelName!);
+      form.setValue("type", data.channelData?.channelType!);
+    }
+  }, [data]);
+
+  const { serverId } = useParams();
+
   async function onSubmit(values: ChannelModalSchema) {
     try {
       setIsUpdating(true);
       const qs = queryString.stringifyUrl({
-        url: "/api/channels",
+        url: "/api/channels/update",
         query: {
-          serverId: data.server?.id,
+          serverId: serverId,
+          channelId: data.channelData?.channelId,
         },
       });
-      await axios.post(qs, values);
+      await axios.patch(qs, values);
       router.refresh();
-      window.location.reload();
+      onClose();
     } catch (err) {
       console.log(err);
     } finally {
@@ -71,7 +81,7 @@ export default function CreateChannelModal() {
     onClose();
   }
 
-  const hasOpened = isOpen && openModal === "createChannel";
+  const hasOpened = isOpen && openModal === "editChannel";
 
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
@@ -127,7 +137,7 @@ export default function CreateChannelModal() {
                 )}
               />
               <Button type="submit" disabled={isUpdating}>
-                Create
+                Update channel
               </Button>
             </form>
           </Form>
