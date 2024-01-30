@@ -1,4 +1,5 @@
 import ServerHead from "@/components/server/server-head";
+import ServerSearch from "@/components/server/server-search";
 import initialProfile from "@/data/initial-user";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
@@ -33,10 +34,17 @@ export default async function ServerLayout({
 
   if (!serverUserIsThePartOf) return redirect("/");
 
+  console.log(serverUserIsThePartOf);
+
   return (
     <div className="grid grid-cols-[250px_1fr] h-full">
       <div className="border-r border-slate-200 bg-zinc-200 dark:border-zinc-200/10 dark:bg-[#282b30]">
         <ServerHead
+          serverUserIsThePartOf={serverUserIsThePartOf}
+          profileId={currentUser.id}
+        />
+
+        <ServerSearch
           serverUserIsThePartOf={serverUserIsThePartOf}
           profileId={currentUser.id}
         />
