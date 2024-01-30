@@ -23,24 +23,12 @@ import { useModal } from "@/hooks/use-modal";
 import { MemberRole } from "@prisma/client";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import axios from "axios";
-import {
-  Check,
-  Gavel,
-  Loader2,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
-} from "lucide-react";
+import { Check, Gavel, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import queryString from "query-string";
 import { useState } from "react";
-
-export const roleIconMap = {
-  [MemberRole.ADMIN]: <ShieldAlert color="red" size={18} />,
-  [MemberRole.MODERATOR]: <ShieldCheck color="purple" size={18} />,
-  [MemberRole.GUEST]: <Shield color="gray" size={18} />,
-};
+import { roleIconMap } from "@/lib/icon-map";
 
 export default function ManageMembersModal() {
   const [isUpdating, setIsUpdating] = useState("");

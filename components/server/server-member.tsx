@@ -1,19 +1,13 @@
 "use client";
 
-import { Member, MemberRole, Profile } from "@prisma/client";
-import { Shield, ShieldAlert, ShieldCheck } from "lucide-react";
+import { roleIconMap } from "@/lib/icon-map";
+import { Member, Profile } from "@prisma/client";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 
 interface ServerMembersProps {
   members: (Member & { profile: Profile | null })[];
 }
-
-export const roleIconMap = {
-  [MemberRole.ADMIN]: <ShieldAlert color="red" size={18} />,
-  [MemberRole.MODERATOR]: <ShieldCheck color="purple" size={18} />,
-  [MemberRole.GUEST]: <Shield color="gray" size={18} />,
-};
 
 export default function ServerMembers({ members }: ServerMembersProps) {
   const router = useRouter();

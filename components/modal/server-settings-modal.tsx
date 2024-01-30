@@ -20,13 +20,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useModal } from "@/hooks/use-modal";
 import { CreateServerSchema, createServerSchema } from "@/schemas";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import UploadContent from "../upload-content";
-import { useModal } from "@/hooks/use-modal";
-import { useRouter } from "next/navigation";
-import queryString from "query-string";
 
 export default function ServerSettingModal() {
   const [isUpdating, setIsUpdating] = useState(false);
