@@ -13,8 +13,8 @@ import { ChannelType } from "@prisma/client";
 import { Activity, Hash, Play, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
-import ServerSearchCommand from "./server-search-command";
 import { roleIconMap } from "../modal/manage-members-modal";
+import ServerSearchCommand from "./server-command";
 
 interface ServerSearchProp {
   serverUserIsThePartOf: ServerWithMembersWithChannels;
@@ -65,7 +65,7 @@ export default function ServerSearch({
   return (
     <div>
       <div
-        className="mx-auto flex items-center w-[95%] gap-1 p-2 px-4 border-b border-slate-300 dark:border-zinc-200/10 justify-between"
+        className="mx-auto flex items-center w-[95%] gap-1 py-3 px-4 border-b border-slate-300 dark:border-zinc-200/10 justify-between"
         onClick={handleSearchClick}
       >
         <div className="flex items-center gap-1">

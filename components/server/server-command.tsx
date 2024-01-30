@@ -2,7 +2,7 @@ import { CommandGroup, CommandItem } from "@/components/ui/command";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-interface ServerSearchCommand {
+interface ServerCommandProps {
   data: {
     heading: string;
     type: "member" | "channel";
@@ -15,7 +15,7 @@ interface ServerSearchCommand {
   };
 }
 
-export default function ServerSearchCommand({ data }: ServerSearchCommand) {
+export default function ServerCommand({ data }: ServerCommandProps) {
   const router = useRouter();
   if (!!!data.subData?.length) return null;
 
@@ -28,20 +28,18 @@ export default function ServerSearchCommand({ data }: ServerSearchCommand) {
   }
 
   return (
-    <div>
-      <CommandGroup heading={data.heading}>
-        {data.subData?.map((item) => (
-          <CommandItem
-            key={item.id}
-            onSelect={() => handleCommandClick(item.id, data.type)}
-          >
-            <span className="flex items-center gap-2">
-              {item.icon}
-              {item.label}
-            </span>
-          </CommandItem>
-        ))}
-      </CommandGroup>
-    </div>
+    <CommandGroup heading={data.heading}>
+      {data.subData?.map((item) => (
+        <CommandItem
+          key={item.id}
+          onSelect={() => handleCommandClick(item.id, data.type)}
+        >
+          <span className="flex items-center gap-2">
+            {item.icon}
+            {item.label}
+          </span>
+        </CommandItem>
+      ))}
+    </CommandGroup>
   );
 }

@@ -9,15 +9,17 @@ import {
 } from "@/components/ui/dialog";
 import { useModal } from "@/hooks/use-modal";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import queryString from "query-string";
 import { useState } from "react";
 import { Button } from "../ui/button";
 
-export default function DeleteServerModal() {
+export default function DeleteChannelModal() {
   const [isUpdating, setIsUpdating] = useState(false);
   const { isOpen, onOpen, openModal, onClose, data } = useModal();
   const router = useRouter();
+
+  const { serverId } = useParams();
 
   // ...
 
@@ -25,14 +27,15 @@ export default function DeleteServerModal() {
     try {
       setIsUpdating(true);
       const url = queryString.stringifyUrl({
-        url: "/api/server/delete",
+        url: "/api/channels/delete",
         query: {
-          serverId: data.server?.id,
+          serverId: serverId,
+          channelId: data?.channelData?.channelId,
         },
       });
       await axios.delete(url);
       router.refresh();
-      handleClose();
+      onClose();
     } catch (err) {
       console.log(err);
     } finally {
@@ -43,19 +46,22 @@ export default function DeleteServerModal() {
     onClose();
   }
 
-  const hasOpened = isOpen && openModal === "deleteServer";
+  const hasOpened = isOpen && openModal === "deleteChannel";
   return (
     <Dialog open={hasOpened} onOpenChange={handleClose}>
       <DialogContent className="dark:bg-[#282b30]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
-            Delete Server
+            Delete Channel
           </DialogTitle>
           <DialogDescription>
             <span className="mb-3 text-center">
               Are you sure you wish to delete
-              <span className="font-bold text-xl"> {data?.server?.name}</span>.
-              You cannot undo this action.
+              <span className="font-bold text-xl">
+                {" "}
+                {data?.channelData?.channelName}
+              </span>
+              . You cannot undo this action.
             </span>
           </DialogDescription>
         </DialogHeader>

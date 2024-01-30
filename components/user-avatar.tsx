@@ -6,7 +6,7 @@ interface UserAvatarProps {
   fallback?: string;
 }
 
-const UserAvatar = forwardRef(({ src, fallback }: UserAvatarProps, ref) => {
+const UserAvatar = forwardRef(({ src }: UserAvatarProps, ref) => {
   return (
     <Avatar>
       <AvatarImage src={src} />

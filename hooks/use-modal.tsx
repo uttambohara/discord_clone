@@ -1,7 +1,8 @@
 import { ServerWithMembersWithChannels } from "@/types";
+import { ChannelType } from "@prisma/client";
 import { create } from "zustand";
 
-type OpenModalType =
+export type OpenModalType =
   | "createServer"
   | "invitePeople"
   | "serverSetting"
@@ -9,11 +10,18 @@ type OpenModalType =
   | "manageMembers"
   | "leaveServer"
   | "deleteServer"
+  | "editChannel"
+  | "deleteChannel"
   | ""
   | null
   | undefined;
 interface ModalData {
   server?: ServerWithMembersWithChannels;
+  channelData?: {
+    channelId?: string;
+    channelType?: ChannelType;
+    channelName?: string;
+  };
 }
 
 interface UseModalProps {
