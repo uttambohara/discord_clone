@@ -46,7 +46,7 @@ export async function PATCH(request: NextRequest) {
     });
     return NextResponse.json({ status: "success", updatedServer });
   } catch (err) {
-    console.log("create_channel", err);
+    console.log("update_channel", err);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

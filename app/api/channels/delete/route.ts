@@ -33,7 +33,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ status: "success" });
   } catch (err) {
-    console.log("create_channel", err);
+    console.log("delete_channel", err);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

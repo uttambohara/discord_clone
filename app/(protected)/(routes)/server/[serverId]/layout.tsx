@@ -69,9 +69,9 @@ export default async function ServerLayout({
         />
 
         {/* Body */}
-        <div className="p-2">
+        <div>
           {textChannels.length > 0 && (
-            <>
+            <div className="p-2">
               <ServerSection
                 heading={"Text channels"}
                 type={"channel"}
@@ -86,13 +86,13 @@ export default async function ServerLayout({
                   role={userRole}
                 />
               ))}
-            </>
+            </div>
           )}
         </div>
 
-        <div className="p-2">
+        <div>
           {audioChannels.length > 0 && (
-            <>
+            <div className="p-2">
               <ServerSection
                 heading={"Audio channels"}
                 type={"channel"}
@@ -107,13 +107,13 @@ export default async function ServerLayout({
                   role={userRole}
                 />
               ))}
-            </>
+            </div>
           )}
         </div>
 
-        <div className="p-2">
+        <div>
           {videoChannels.length > 0 && (
-            <>
+            <div className="p-2">
               <ServerSection
                 heading={"Video channels"}
                 type={"channel"}
@@ -128,13 +128,13 @@ export default async function ServerLayout({
                   role={userRole}
                 />
               ))}
-            </>
+            </div>
           )}
         </div>
 
-        <div className="p-2">
+        <div>
           {members.length > 0 && (
-            <>
+            <div className="p-2">
               <ServerSection
                 role={userRole}
                 heading={"Members"}
@@ -144,11 +144,11 @@ export default async function ServerLayout({
               {members.map((member) => (
                 <ServerMembers key={member.id} members={members} />
               ))}
-            </>
+            </div>
           )}
         </div>
       </div>
-      <main className="dark:bg-[#36393e]">{children}</main>
+      <main className="dark:bg-[#36393e] h-screen">{children}</main>
     </div>
   );
 }

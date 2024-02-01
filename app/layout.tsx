@@ -3,8 +3,10 @@ import { Caudex } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
-import { ThemeProvider } from "@/components/provider/theme-provider";
-import ModalProvider from "@/components/provider/modal-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import ModalProvider from "@/components/providers/modal-provider";
+import { SocketProvider } from "@/components/providers/socket-provider";
+import { TanstackProvider } from "@/components/providers/tanstack-provider";
 
 const inter = Caudex({
   subsets: ["latin"],
@@ -32,8 +34,12 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <ModalProvider />
-            {children}
+            <SocketProvider>
+              <TanstackProvider>
+                <ModalProvider />
+                {children}
+              </TanstackProvider>
+            </SocketProvider>
           </ThemeProvider>
         </body>
       </html>

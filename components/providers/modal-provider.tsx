@@ -10,6 +10,8 @@ import DeleteServerModal from "../modal/delete-server-modal";
 import LeaveServerModal from "../modal/leave-server-modal";
 import EditChannelModal from "../modal/edit-channel-modal";
 import DeleteChannelModal from "../modal/delete-channel-modal";
+import UploadFileServer from "../modal/upload-file-modal";
+import DeleteChatModal from "../modal/delete-chat-modal";
 
 export default function ModalProvider() {
   const [hasMounted, setHasMounted] = useState(false);
@@ -28,6 +30,8 @@ export default function ModalProvider() {
       <DeleteServerModal />
       <EditChannelModal />
       <DeleteChannelModal />
+      <UploadFileServer />
+      <DeleteChatModal />
     </>
   );
 }

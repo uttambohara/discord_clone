@@ -12,6 +12,8 @@ export type OpenModalType =
   | "deleteServer"
   | "editChannel"
   | "deleteChannel"
+  | "uploadFile"
+  | "deleteChat"
   | ""
   | null
   | undefined;
@@ -21,6 +23,14 @@ interface ModalData {
     channelId?: string;
     channelType?: ChannelType;
     channelName?: string;
+    apiUrl?: string;
+    params?: Record<string, string>;
+
+    // Chat deletion
+    socketUrl?: string;
+    socketParams?: Record<string, string>;
+    profileId?: string;
+    postId?: string;
   };
 }
 

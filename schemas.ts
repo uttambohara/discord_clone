@@ -53,3 +53,13 @@ export const channelModalSchema = z
   });
 
 export type ChannelModalSchema = z.infer<typeof channelModalSchema>;
+
+//
+//
+export const uploadFileSchema = z.object({
+  fileUrl: z.string().min(2, {
+    message: "File Url name must be at least 2 characters.",
+  }),
+});
+
+export type UploadFileSchema = z.infer<typeof uploadFileSchema>;
