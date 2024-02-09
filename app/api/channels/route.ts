@@ -1,53 +1,57 @@
-import currentProfile from "@/data/current-profile";
-import { prisma } from "@/lib/prisma";
-import { channelModalSchema } from "@/schemas";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { MemberRole } from "@prisma/client";
 
-export async function POST(request: NextRequest) {
+import { currentProfile } from "@/lib/current-profile";
+import { db } from "@/lib/db";
+
+export async function POST(
+  req: Request
+) {
   try {
-    const currentUser = await currentProfile();
-    if (!currentUser) return new NextResponse("Unauthorized!", { status: 401 });
+    const profile = await currentProfile();
+    const { name, type } = await req.json();
+    const { searchParams } = new URL(req.url);
 
-    // Validating value
-    const values = await request.json();
-    const validatedValue = channelModalSchema.safeParse(values);
-    if (!validatedValue.success)
-      return new NextResponse("Invalid values!", { status: 400 });
-
-    //
-    const { searchParams } = new URL(request.url);
     const serverId = searchParams.get("serverId");
 
-    if (!serverId)
-      return new NextResponse("Server Id doesn't exist!", { status: 400 });
+    if (!profile) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
-    //  Create server
-    const { type, name } = validatedValue.data;
+    if (!serverId) {
+      return new NextResponse("Server ID missing", { status: 400 });
+    }
 
-    if (!type)
-      return new NextResponse("Channel type doesn't exist!!", { status: 400 });
+    if (name === "general") {
+      return new NextResponse("Name cannot be 'general'", { status: 400 });
+    }
 
-    if (!name) return new NextResponse("Name doesn't exist!", { status: 400 });
-
-    const updatedServer = await prisma.server.update({
+    const server = await db.server.update({
       where: {
         id: serverId,
-        profileId: currentUser.id,
+        members: {
+          some: {
+            profileId: profile.id,
+            role: {
+              in: [MemberRole.ADMIN, MemberRole.MODERATOR]
+            }
+          }
+        }
       },
       data: {
         channels: {
-          createMany: {
-            data: {
-              name: name,
-              channelType: type,
-            },
-          },
-        },
-      },
+          create: {
+            profileId: profile.id,
+            name,
+            type,
+          }
+        }
+      }
     });
-    return NextResponse.json({ status: "success", updatedServer });
-  } catch (err) {
-    console.log("create_channel", err);
-    return new NextResponse("Internal error", { status: 500 });
+
+    return NextResponse.json(server);
+  } catch (error) {
+    console.log("CHANNELS_POST", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }

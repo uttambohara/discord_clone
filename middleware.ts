@@ -1,39 +1,12 @@
-import authConfig from "./auth.config";
-import NextAuth from "next-auth";
-import {
-  LOGIN_SUCCESS_REDIRECT,
-  authRoutes,
-  prefixAPIRoute,
-  publicRoutes,
-} from "./routes";
-export const { auth } = NextAuth(authConfig);
-
-export default auth((req) => {
-  // req.auth
-  const { pathname } = req.nextUrl;
-  const isLoggedIn = !!req.auth;
-
-  const isPublicRoute = publicRoutes.includes(pathname);
-  const isAuthRoutes = authRoutes.includes(pathname);
-  const isAPIprefixedRoute = pathname.startsWith(prefixAPIRoute);
-
-  if (isAPIprefixedRoute) return null;
-
-  if (isAuthRoutes) {
-    if (isLoggedIn) {
-      return Response.redirect(new URL(LOGIN_SUCCESS_REDIRECT, req.nextUrl));
-    }
-    return null;
-  }
-
-  if (!isLoggedIn && !isPublicRoute) {
-    return Response.redirect(new URL("/auth/login", req.nextUrl));
-  }
-
-  return null;
+import { authMiddleware } from "@clerk/nextjs";
+ 
+// This example protects all routes including api/trpc routes
+// Please edit this to allow other routes to be public as needed.
+// See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your middleware
+export default authMiddleware({
+  publicRoutes: ["/api/uploadthing"]
 });
-
-// Optionally, don't invoke Middleware on some paths
+ 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };

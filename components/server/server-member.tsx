@@ -1,46 +1,57 @@
 "use client";
 
-import { roleIconMap } from "@/lib/icon-map";
-import { Member, Profile } from "@prisma/client";
-import Image from "next/image";
+import { Member, MemberRole, Profile, Server } from "@prisma/client";
+import { ShieldAlert, ShieldCheck } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
-interface ServerMembersProps {
-  members: (Member & { profile: Profile | null })[];
+import { cn } from "@/lib/utils";
+import { UserAvatar } from "@/components/user-avatar";
+
+interface ServerMemberProps {
+  member: Member & { profile: Profile };
+  server: Server;
 }
 
-export default function ServerMembers({ members }: ServerMembersProps) {
+const roleIconMap = {
+  [MemberRole.GUEST]: null,
+  [MemberRole.MODERATOR]: <ShieldCheck className="h-4 w-4 ml-2 text-indigo-500" />,
+  [MemberRole.ADMIN]: <ShieldAlert className="h-4 w-4 ml-2 text-rose-500" />
+}
+
+export const ServerMember = ({
+  member,
+  server
+}: ServerMemberProps) => {
+  const params = useParams();
   const router = useRouter();
 
-  const { serverId } = useParams();
+  const icon = roleIconMap[member.role];
 
-  function handleClick(id: string) {
-    router.push(`/server/${serverId}/conversation/${id}`);
+  const onClick = () => {
+    router.push(`/servers/${params?.serverId}/conversations/${member.id}`)
   }
-  return (
-    <div className="mt-3">
-      {members.map((member) => (
-        <div
-          key={member.id}
-          className="flex items-center gap-2 hover:bg-zinc-300 hover:dark:bg-zinc-800/80 rounded-md cursor-pointer"
-          onClick={() => handleClick(member.id)}
-        >
-          <div className="relative h-11 w-11">
-            <Image
-              src={member.profile?.imageUrl!}
-              fill
-              priority
-              className="rounded-full alt"
-              alt={member.profile?.name!}
-            />
-          </div>
 
-          <div className="flex items-center gap-2 text-sm">
-            <span>{member.profile?.name}</span>
-            {roleIconMap[member.role]}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "group px-2 py-2 rounded-md flex items-center gap-x-2 w-full hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 transition mb-1",
+        params?.memberId === member.id && "bg-zinc-700/20 dark:bg-zinc-700"
+      )}
+    >
+      <UserAvatar 
+        src={member.profile.imageUrl}
+        className="h-8 w-8 md:h-8 md:w-8"
+      />
+      <p
+        className={cn(
+          "font-semibold text-sm text-zinc-500 group-hover:text-zinc-600 dark:text-zinc-400 dark:group-hover:text-zinc-300 transition",
+          params?.memberId === member.id && "text-primary dark:text-zinc-200 dark:group-hover:text-white"
+        )}
+      >
+        {member.profile.name}
+      </p>
+      {icon}
+    </button>
+  )
 }
